@@ -1,0 +1,118 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class MemberPages_Edit_User : System.Web.UI.Page
+{
+    private string _username;
+    private MembershipUser _user;
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        _username = Request.QueryString["username"];
+        if (string.IsNullOrEmpty(_username))
+        {
+            Response.Redirect("users.aspx");
+        }
+        _user = Membership.GetUser(_username);
+        UserUpdateMessage.Text = "";
+    }
+
+    protected void UserInfo_ItemUpdating(object sender, DetailsViewUpdateEventArgs e)
+    {
+        //Need to handle the update manually because MembershipUser does not have a
+        //parameterless constructor  
+
+        _user.Email = (string)e.NewValues[0];
+        _user.Comment = (string)e.NewValues[1];
+        _user.IsApproved = (bool)e.NewValues[2];
+
+        try
+        {
+            // Update user info:
+            Membership.UpdateUser(_user);
+
+            // Update user roles:
+            UpdateUserRoles();
+
+            UserUpdateMessage.Text = "Update Successful.";
+
+            e.Cancel = true;
+            UserInfo.ChangeMode(DetailsViewMode.ReadOnly);
+        }
+        catch (Exception ex)
+        {
+            UserUpdateMessage.Text = "Update Failed: " + ex.Message;
+
+            e.Cancel = true;
+            UserInfo.ChangeMode(DetailsViewMode.ReadOnly);
+        }
+    }
+
+    private void Page_PreRender()
+    {
+        // Load the User Roles into checkboxes.
+        UserRoles.DataSource = Roles.GetAllRoles();
+        UserRoles.DataBind();
+
+        // Disable checkboxes if appropriate:
+        if (UserInfo.CurrentMode != DetailsViewMode.Edit)
+        {
+            foreach (ListItem checkbox in UserRoles.Items)
+            {
+                checkbox.Enabled = false;
+            }
+        }
+
+        // Bind these checkboxes to the User's own set of roles.
+        string[] userRoles = Roles.GetRolesForUser(_username);
+        foreach (string role in userRoles)
+        {
+            ListItem checkbox = UserRoles.Items.FindByValue(role);
+            checkbox.Selected = true;
+        }
+    }
+
+    private void UpdateUserRoles()
+    {
+        foreach (ListItem rolebox in UserRoles.Items)
+        {
+            if (rolebox.Selected)
+            {
+                if (!Roles.IsUserInRole(_username, rolebox.Text))
+                {
+                    Roles.AddUserToRole(_username, rolebox.Text);
+                }
+            }
+            else
+            {
+                if (Roles.IsUserInRole(_username, rolebox.Text))
+                {
+                    Roles.RemoveUserFromRole(_username, rolebox.Text);
+                }
+            }
+        }
+    }
+
+    public void DeleteUser(object sender, EventArgs e)
+    {
+        //Membership.DeleteUser(username, false); // DC: My apps will NEVER delete the related data.
+        Membership.DeleteUser(_username, true); // DC: except during testing, of course!
+        Response.Redirect("users.aspx");
+    }
+
+    public void UnlockUser(object sender, EventArgs e)
+    {
+        // Dan Clem, added 5/30/2007 post-live upgrade.
+
+        // Unlock the user.
+        _user.UnlockUser();
+
+        // DataBind the GridView to reflect same.
+        UserInfo.DataBind();
+    }
+}

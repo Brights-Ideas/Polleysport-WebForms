@@ -1,0 +1,20 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/AdminPages/Admin.master" AutoEventWireup="true" CodeFile="Coming Soon.aspx.cs" Inherits="Coming_Soon" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="headContent" Runat="Server">
+
+<link rel="stylesheet" href="../css/reset.css" type="text/css" media="all"/>
+<link rel="stylesheet" href="../css/style.css" type="text/css" media="all"/>
+
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentBody" Runat="Server">
+
+<div id="Coming Soon" class="content_std">
+    <center>
+    <img alt="This page is coming soon" src="../Images/coming_soon.jpg" />
+
+    <p>Please check back another time</p>
+    </center>
+</div>
+
+</asp:Content>
+

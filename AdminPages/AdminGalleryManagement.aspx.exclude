@@ -1,0 +1,40 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/AdminPages/Admin.master" AutoEventWireup="true" CodeFile="AdminGalleryManagement.aspx.cs" Inherits="AdminPages_AdminGalleryManagement" %>
+
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentBody" Runat="Server">
+     <div class="applicationWindow span8 offset1">
+        <asp:SqlDataSource ID="gallery" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
+            SelectCommand="SELECT * FROM [Gallery]"></asp:SqlDataSource>
+        <div class="modal-header"></div>
+        <div class="modal-body">
+        <asp:Repeater ID="galleryRepeater" runat="server">
+            <HeaderTemplate>
+            </HeaderTemplate>
+            <ItemTemplate>
+                <div class="product-container-left">
+                    <div class="media">
+                        <a class="pull-left" href="#">
+                            <img class="media-object" id="ImageContent" alt="" src='../<%# Eval("GalleryImageUrl") %>' width="130" height="180" />
+                        </a>
+                        <div class="media-body">
+                            <h3 class="media-heading"><%# Eval("GalleryTitle")%> </h3>
+                        </div>
+                        <p>
+                            <asp:HyperLink ID="lnkGalleryDetails" runat="server" CssClass="btn btn-primary" NavigateUrl='<%# Eval("GalleryID", "AdminGallery.aspx?GalleryID={0}") %>'>Modify/Add</asp:HyperLink>
+                        </p>
+                    </div>
+                </div>
+            </ItemTemplate>
+        </asp:Repeater>
+        </div>
+        <div class="modal-footer">
+            <div id="pagination" style="display: inline-block">
+                <asp:Panel ID="pnlNavigation" runat="server" Visible="false">
+                    <asp:Button ID="btnPrev" runat="server" CssClass="button" Text=" << " OnClick="btnPrev_Click" />
+                    <asp:Label ID="lblCurrentPage" runat="server"></asp:Label>
+                    <asp:Button ID="btnNext" runat="server" CssClass="button" Text=" >> " OnClick="btnNext_Click" />
+                </asp:Panel>
+            </div>
+       </div>
+    </div>
+</asp:Content>
+

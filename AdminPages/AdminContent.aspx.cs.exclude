@@ -1,0 +1,121 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Data;
+using System.Data.Sql;
+using System.Data.SqlClient;
+using System.Web.UI.WebControls;
+using System.Configuration;
+
+public partial class AdminPages_Admin : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!IsPostBack)
+        {
+            BindData();
+        }
+
+    }
+
+    private void BindData()
+    {
+        SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlDataAdapter da = new SqlDataAdapter("SELECT EventID, EventName, EventDate, EventClub FROM Events", con);
+        DataTable dt = new DataTable();
+        da.Fill(dt);
+        GridView1.DataSource = dt;
+        GridView1.DataBind();
+    }
+
+    protected void GridView1_PageIndexChanging(object sender, GridViewPageEventArgs e)
+    {
+        //GridView1.DataSource = DB.GetTrades();
+        GridView1.PageIndex = e.NewPageIndex;
+        BindData();
+    }
+    protected void GridView1_RowEditing(object sender, GridViewEditEventArgs e)
+    {
+        GridView1.EditIndex = e.NewEditIndex;
+        BindData();
+    }
+    protected void GridView1_RowCancelingEdit(object sender, GridViewCancelEditEventArgs e)
+    {
+        GridView1.EditIndex = -1;
+        BindData();
+    }
+    protected void GridView1_RowUpdating(object sender, GridViewUpdateEventArgs e)
+    {
+
+        if (((LinkButton)GridView1.Rows[0].Cells[0].Controls[0]).Text == "Insert")
+        {
+            SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+            SqlCommand cmd = new SqlCommand();
+            cmd.CommandText = "INSERT INTO Events(EventName, EventDate, EventClub) VALUES(@EventName, @EventDate, @EventClub)";
+            cmd.Parameters.Add("@EventName", SqlDbType.VarChar).Value = ((TextBox)GridView1.Rows[0].Cells[2].Controls[0]).Text;
+            cmd.Parameters.Add("@EventDate", SqlDbType.Date).Value = ((TextBox)GridView1.Rows[0].Cells[3].Controls[0]).Text;
+            cmd.Parameters.Add("@EventClub", SqlDbType.VarChar).Value = ((TextBox)GridView1.Rows[0].Cells[4].Controls[0]).Text;
+
+            cmd.Connection = con;
+            con.Open();
+            cmd.ExecuteNonQuery();
+            con.Close();
+        }
+        else
+        {
+            SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+            SqlCommand cmd = new SqlCommand();
+            cmd.CommandText = "UPDATE Events SET EventName=@EventName, EventDate=@EventDate WHERE EventID=@EventID";
+            cmd.Parameters.Add("@EventName", SqlDbType.VarChar).Value = ((TextBox)GridView1.Rows[e.RowIndex].Cells[2].Controls[0]).Text;
+            cmd.Parameters.Add("@EventDate", SqlDbType.Date).Value = ((TextBox)GridView1.Rows[e.RowIndex].Cells[3].Controls[0]).Text;
+            cmd.Parameters.Add("@EventClub", SqlDbType.VarChar).Value = ((TextBox)GridView1.Rows[e.RowIndex].Cells[4].Controls[0]).Text;
+            cmd.Parameters.Add("@EventID", SqlDbType.Int).Value = Convert.ToInt32(GridView1.Rows[e.RowIndex].Cells[1].Text);
+            cmd.Connection = con;
+            con.Open();
+            cmd.ExecuteNonQuery();
+            con.Close();
+
+        }
+
+
+        GridView1.EditIndex = -1;
+        BindData();
+    }
+
+    protected void btnAdd_Click(object sender, EventArgs e)
+    {
+        SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlDataAdapter da = new SqlDataAdapter("SELECT EventID, EventName, EventDate, EventClub FROM Events", con);
+        DataTable dt = new DataTable();
+        da.Fill(dt);
+
+        // Here we'll add a blank row to the returned DataTable
+        DataRow dr = dt.NewRow();
+        dt.Rows.InsertAt(dr, 0);
+        //Creating the first row of GridView to be Editable
+        GridView1.EditIndex = 0;
+        GridView1.DataSource = dt;
+        GridView1.DataBind();
+        //Changing the Text for Inserting a New Record
+        ((LinkButton)GridView1.Rows[0].Cells[0].Controls[0]).Text = "Insert";
+
+    }
+    protected void GridView1_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    {
+        SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        SqlCommand cmd = new SqlCommand();
+        cmd.CommandText = "DELETE FROM Events WHERE EventID=@EventID";
+        cmd.Parameters.Add("@EventID", SqlDbType.Int).Value = Convert.ToInt32(GridView1.Rows[e.RowIndex].Cells[1].Text);
+
+        cmd.Connection = con;
+        con.Open();
+        cmd.ExecuteNonQuery();
+        con.Close();
+
+        BindData();
+
+    }
+            
+}

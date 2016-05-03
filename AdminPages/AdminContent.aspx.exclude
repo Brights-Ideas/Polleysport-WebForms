@@ -1,0 +1,52 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" MasterPageFile="~/AdminPages/Admin.master" CodeFile="AdminContent.aspx.cs" Inherits="AdminPages_Admin" %>
+
+<asp:Content ID="Content3" ContentPlaceHolderID="headContent" runat="Server">
+  
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css"/>
+
+  <script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+  
+  <script type="text/javascript">
+      $(function () {
+          //$(".datepicker").datepicker();
+          $('.datepicker').datepicker({ dateFormat: 'dd-mm-yy' });
+      });
+  </script>
+</asp:Content>
+
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentBody" runat="Server">
+
+    <div class="applicationWindow span10 offset1">
+        <div class="modal-header">Events edit</div>
+        <div class="modal-body">
+            <asp:Button ID="btnAdd" runat="server" CssClass="btn btn-success" OnClick="btnAdd_Click" Text="Add Event" /><br />
+            <br />
+            <asp:GridView ID="GridView1" runat="server"
+                AutoGenerateColumns="False"
+                GridLines="None" AllowPaging="true"
+                CssClass="mGrid" PagerStyle-CssClass="pager"
+                AlternatingRowStyle-CssClass="alt"
+                DataKeyNames="EventID"
+                OnPageIndexChanging="GridView1_PageIndexChanging"
+                OnRowCancelingEdit="GridView1_RowCancelingEdit"
+                OnRowDeleting="GridView1_RowDeleting"
+                OnRowEditing="GridView1_RowEditing" OnRowUpdating="GridView1_RowUpdating">
+                <Columns>
+                    <asp:CommandField HeaderText="Edit/Update" ShowEditButton="True" />
+                    <asp:BoundField DataField="EventID" HeaderText="Event ID" ReadOnly="True" />
+                    <asp:BoundField DataField="EventName" HeaderText="Circuit" />
+                    <asp:BoundField DataField="EventDate" HeaderText="Date" ControlStyle-CssClass="datepicker" />
+                    <asp:BoundField DataField="EventClub" HeaderText="Formula / Club" />
+                    <%--<asp:CommandField HeaderText="Delete" ShowDeleteButton="True" />--%>
+                    <asp:TemplateField>
+                        <ItemTemplate>
+                            <asp:Button ID="DeleteButton" CssClass="btn btn-danger" runat="server" Text="Delete"
+                                CommandName="Delete" OnClientClick="return confirm('Delete this Record?');"></asp:Button>
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                </Columns>
+            </asp:GridView>
+        </div>
+    </div>
+</asp:Content>

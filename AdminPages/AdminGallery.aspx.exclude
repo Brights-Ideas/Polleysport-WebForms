@@ -1,0 +1,115 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/AdminPages/Admin.master" AutoEventWireup="true" CodeFile="AdminGallery.aspx.cs" Inherits="AdminPages_AdminGallery" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="headContent" runat="Server">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="../js/vendor/jquery.ui.widget.js"></script>
+    <script src="../js/jquery.iframe-transport.js"></script>
+    <script src="../js/jquery.fileupload.js"></script>
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentBody" runat="Server">
+    
+    <asp:FormView ID="fvGallery" runat="server" DataSourceID="Gallery">
+        <ItemTemplate>
+            <div class="applicationWindow span8 offset1">
+                <div class="modal-header">Update Gallery Item</div>
+                <div class="modal-body">
+                    <asp:HiddenField ID="hdn_prod" Value='<%# Eval("GalleryID") %>' runat="server" />
+                    <div class="product-container-left">
+                        <div class="row-fluid">
+                            <a class="span3 pull-left" href="#">
+                                <img class="media-object" id="ImageContent" alt="" src='../<%# Eval("GalleryImageUrl") %>' width="130" height="180" />
+                            </a>
+                            <div class="span6">
+                                <h3 class="media-heading"><%# Eval("GalleryTitle")%> </h3>
+                            </div>
+
+                                 <div class="span3 btn-group-vertical pull-right">
+                                    <asp:LinkButton ID="NewButton" runat="server" CausesValidation="False"
+                                        CssClass="btn btn-success" CommandName="New" Text="Add Gallery Item" />
+                                    <asp:LinkButton ID="btnEdit" Text="Edit Gallery Item" CssClass="btn btn-warning" CommandName="Edit"
+                                        runat="server" />
+                                    <asp:LinkButton ID="lnkDelete" Text="Delete Gallery Item" CssClass="btn btn-danger" CommandName="Delete"
+                                        OnClientClick="return confirm('Delete entry?');" runat="server" />
+                                </div>
+                        </div>
+         
+                    </div>
+                </div>
+            </div>
+        </ItemTemplate>
+        <EditItemTemplate>
+             <div class="applicationWindow span8 offset1">
+                <div class="modal-header">Edit Gallery Item</div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <asp:Label ID="lblgalleryTitle" AssociatedControlID="txtgalleryTitle" runat="server" Text="Gallery Title" />
+                        <asp:TextBox ID="txtgalleryTitle" CssClass="form-control" runat="server" Text='<%#Bind("GalleryTitle")%>' />
+                    </div>
+                    <div class="form-group">
+                        <img alt="Upload Image" id="prodImage" src="../Content/Images/uploadphoto.png" />
+                        <asp:FileUpload ID="uploadPicture" CssClass="form-control" runat="server" />
+                        <asp:HiddenField ID="hfImageURL" runat="server" Value='<%#Bind("GalleryImageUrl") %>' />
+                    </div>
+                
+                </div>
+                    <div class="modal-footer">
+                        <div class="btn-group pull-right">
+                            <asp:Button ID="btnSaveDetails" runat="server" CssClass="btn btn-primary" Text="Update details"
+                                OnClick="saveDetails" CausesValidation="true" />
+
+                            <asp:LinkButton ID="UpdateCancelButton" runat="server" CssClass="btn btn-warning" CausesValidation="False" CommandName="Cancel" Text="Cancel" />
+                        </div>
+                    </div>
+                
+            </div>
+        </EditItemTemplate>
+        <InsertItemTemplate>
+            <div class="applicationWindow span8 offset1">
+                <div class="modal-header">Add Gallery Image</div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="txtGalleryTitle">Gallery title: </label>
+                        <asp:TextBox ID="txtGalleryTitle" CssClass="form-control" Text='<%#Bind("GalleryTitle") %>' runat="server"></asp:TextBox>
+                    </div>
+                    <div class="form-group">
+                        <img alt="Upload Image" id="prodImage" src="../Content/Images/uploadphoto.png" />
+                        <asp:FileUpload ID="uploadPicture" CssClass="form-control" runat="server" />
+                        <asp:HiddenField ID="hfImageURL" runat="server" Value='<%#Bind("GalleryImageUrl") %>' />
+                    </div>
+                </div>
+                    <div class="modal-footer">
+                        <div class="btn-group pull-right">
+                            <asp:LinkButton ID="InsertButton" runat="server" CssClass="btn btn-primary" OnClick="InsertButton_Click" CausesValidation="True" CommandName="Insert" Text="Insert" />
+                            <asp:LinkButton ID="InsertCancelButton" runat="server" CssClass="btn btn-warning" CausesValidation="False" CommandName="Cancel" Text="Cancel" />
+                        </div>
+                    </div>
+                
+            </div>
+        </InsertItemTemplate>
+    </asp:FormView>
+    <asp:SqlDataSource ID="Gallery" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
+        SelectCommand="SELECT * FROM [Gallery] WHERE GalleryID=@GalleryID"
+        InsertCommand="Gallery_Insert" InsertCommandType="StoredProcedure"
+        UpdateCommand="Gallery_Edit" UpdateCommandType="StoredProcedure"
+        DeleteCommand="UPDATE Gallery SET enabled = 0 WHERE GalleryID=@GalleryID"
+        runat="server">
+        <InsertParameters>
+            <asp:Parameter Name="GalleryTitle" Type="String" />
+            <asp:Parameter Name="GalleryImageURL" Type="String" />
+        </InsertParameters>
+        <SelectParameters>
+            <asp:QueryStringParameter Name="GalleryID" QueryStringField="GalleryID" ConvertEmptyStringToNull="true" Type="Int32" />
+        </SelectParameters>
+        <UpdateParameters>
+            <asp:QueryStringParameter Name="GalleryID" QueryStringField="GalleryID" Type="Int32" />
+            <asp:ControlParameter ControlID="fvGallery$txtGalleryTitle" Name="Name" PropertyName="Text"
+                Type="String" />
+            <asp:ControlParameter ControlID="fvGallery$hfImageURL" Name="ImageURL" PropertyName="Value"
+                Type="String" />
+        </UpdateParameters>
+        <DeleteParameters>
+            <asp:QueryStringParameter Name="GalleryID" QueryStringField="GalleryID" Type="Int32" />
+        </DeleteParameters>
+    </asp:SqlDataSource>
+</asp:Content>
+

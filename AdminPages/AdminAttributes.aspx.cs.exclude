@@ -1,0 +1,342 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class AdminPages_AdminAttributes : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        if (!Page.IsPostBack)
+        {
+            BindRepeater();
+            //===== To bind attribute records from database.
+            bindAttributeDetailsToRepeater();
+            //txtProdID.DataSource = List.ToString();
+            txtProdID.DataBind();
+
+            txtProdID.Items.Insert(0, new ListItem("-- choose one--", "0"));
+        }
+    }
+
+    private void BindRepeater()
+    {
+        int totalCount = 0;
+        //get records to be shown in the current page
+        DataTable table = GetDataSource(PagingControl1.FirstItemIndex, PagingControl1.MaxItemIndex, out totalCount);
+        //bind repeater 
+        repAttributeDetails.DataSource = table;
+        repAttributeDetails.DataBind();
+
+        //Set number of records
+        PagingControl1.TotalRecordsCount = totalCount;
+        //build control
+        PagingControl1.BuildPages();
+    }
+
+    private DataTable GetDataSource(int firstItemIndex, int lastItemIndex, out int totalRecordsCount)
+    {
+        SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        DataSet dSet = new DataSet();
+        SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Product_Attributes", con);
+        DataTable table;
+        da.Fill(dSet);
+        table = dSet.Tables[0];
+        repAttributeDetails.DataSource = table;
+        repAttributeDetails.DataBind();
+
+        //set total records count
+        totalRecordsCount = table.Rows.Count;
+
+        //return only records to be shown on the current page
+        return table.AsEnumerable().Skip(firstItemIndex).Take(lastItemIndex - firstItemIndex + 1).CopyToDataTable();
+    }
+
+    #region -- Pagination --
+    protected override bool OnBubbleEvent(object source, EventArgs args)
+    {
+        CommandEventArgs e = (CommandEventArgs)args;
+
+        if (e != null)
+        {
+            //Go to Next Page
+            if (string.Equals(e.CommandName, "MoveNext", StringComparison.OrdinalIgnoreCase))
+            {
+                BindRepeater();
+            }
+            //Go to Previous Page
+            else if (string.Equals(e.CommandName, "MovePrev", StringComparison.OrdinalIgnoreCase))
+            {
+                BindRepeater();
+            }
+            //Go to First Page
+            else if (string.Equals(e.CommandName, "MoveFirst", StringComparison.OrdinalIgnoreCase))
+            {
+                BindRepeater();
+            }
+            //Go to Last Page
+            else if (string.Equals(e.CommandName, "MoveLast", StringComparison.OrdinalIgnoreCase))
+            {
+                BindRepeater();
+            }
+            //Go to Page Number ...
+            else if (string.Equals(e.CommandName, "GoToPage", StringComparison.OrdinalIgnoreCase))
+            {
+                BindRepeater();
+            }
+        }
+
+        return base.OnBubbleEvent(source, e);
+    }
+
+    #endregion
+
+    //===== Method to bind attribute records to repeater control.
+    void bindAttributeDetailsToRepeater()
+    {
+        //====== Getting connection string defined in the web.config file. Pointed to the database we want to use.
+        SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+
+        //======= Select Query.
+        string cmdText = "SELECT * FROM Product_Attributes";
+
+        //====== Providning information to SQL command object about which query to
+        //====== execute and from where to get database connection information.
+        SqlCommand cmd = new SqlCommand(cmdText, con);
+
+        //===== To check current state of the connection object. If it is closed open the connection
+        //===== to execute the insert query.
+        if (con.State == ConnectionState.Closed)
+        {
+            con.Open();
+        }
+
+        //===== Execute Query and bind data to repeater.
+        repAttributeDetails.DataSource = cmd.ExecuteReader();
+        repAttributeDetails.DataBind();
+
+    }
+
+    //===== Clear Inut control's data.
+    void clearInputControls()
+    {
+        txtAttrName.Text = string.Empty;
+        txtAttrName.Text = string.Empty;
+        txtAttrVal.Text = string.Empty;
+        txtPrice.Text = string.Empty;
+    }
+
+
+    //    #region DatabaseUpdates
+
+    //    // Update product stock
+    //    using (var sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+    //    {
+    //        using (var sqlCommand = new SqlCommand("ProductQuantityChange", sqlConnection))
+    //        {
+    //            sqlCommand.CommandType = CommandType.StoredProcedure;
+    //            sqlConnection.Open();
+    //            foreach (CartItem item in Items)
+    //            {
+    //                sqlCommand.Parameters.Clear();
+    //                sqlCommand.Parameters.AddWithValue("@ProductID", item.ProductId);
+    //                sqlCommand.Parameters.AddWithValue("@Quantity", item.Quantity);
+
+    //                sqlCommand.ExecuteNonQuery();
+    //            }
+    //            sqlConnection.Close();
+    //        }
+    //    }
+    //    #endregion
+    //}
+
+    protected void btnSave_Click(object sender, EventArgs e)
+    {
+        using (var sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+        {
+            //======= Insert Query.
+            string cmdText = "INSERT INTO Product_Attributes (Product_Id, attribute_name, attribute_value, Price) VALUES (@Product_Id, @Attribute_Name, @Attribute_Value, @Price)";
+
+            using (var sqlCommand = new SqlCommand(cmdText, sqlConnection))
+            {
+                sqlCommand.CommandType = CommandType.Text;
+                sqlConnection.Open();
+                //string cmdText = "UPDATE Product_Attributes SET attribute_name = @Attribute_Name, attribute_value = @Attribute_Value, Price = @Price WHERE Id = @Id";
+                sqlCommand.Parameters.AddWithValue("@Product_Id", Convert.ToInt32(txtProdID.Text));
+                sqlCommand.Parameters.AddWithValue("@Attribute_Name", (txtAttrName.Text));
+                sqlCommand.Parameters.AddWithValue("@Attribute_Value", (txtAttrVal.Text));
+                sqlCommand.Parameters.AddWithValue("@Price", Convert.ToDouble(txtPrice.Text));
+
+                //===== Execute Query.
+                sqlCommand.ExecuteNonQuery();
+                //===== close the connection.
+                sqlConnection.Close();
+            }
+        }
+
+    }
+
+    //========= Edit,Delete buttons inside repeater.
+    protected void repAttributeDetails_ItemCommand(object source, RepeaterCommandEventArgs e)
+    {
+        //====== Here we use switch state to distinguish which link button is clicked based
+        //====== on command name supplied to the link button.
+        switch (e.CommandName)
+        {
+            //==== This case will fire when link button placed
+            //==== inside repeater having command name "Delete" is clicked.
+            case ("Delete"):
+                //==== Getting id of the selelected record(We have passed on link button's command argument property).
+                int id = Convert.ToInt32(e.CommandArgument);
+                //==== Call delete method and pass id as argument.
+                deleteAttribute(id);
+                break;
+            //==== This case will fire when link button placed
+            //==== inside repeater having command name "Edit" is clicked.
+            case ("Edit"):
+                //==== Getting id of the selelected record(We have passed on link button's command argument property).
+                id = Convert.ToInt32(e.CommandArgument);
+                //==== Call delete method and pass id as argument.
+                bindAttributeToEdit(id);
+                break;
+        }
+    }
+    //===== Method to delete employee from database.
+    void deleteAttribute(int id)
+    {
+        //====== Getting connection string defined in the web.config file. Pointed to the database we want to use.
+        using (var con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+        {
+            //======= Delete Query.
+            string cmdText = "DELETE FROM Product_Attributes WHERE Id=@Id";
+            //====== Providning information to SQL command object about which query to
+            //====== execute and from where to get database connection information.
+            using (var cmd = new SqlCommand(cmdText, con))
+            {
+                //SqlCommand cmd = new SqlCommand(cmdText, con);
+                //===== Adding parameters/Values.
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                //===== To check current state of the connection object. If it is closed open the connection
+                //===== to execute the insert query.
+                if (con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+
+                //===== Execute Query.
+                cmd.ExecuteNonQuery();
+                //===== close the connection.
+                con.Close();
+            }
+            //===== Bind data to repeater so that repeater will display updated data.
+            bindAttributeDetailsToRepeater();
+        }
+    }
+
+    //===== Method to bind relevant data into form fields when edit button is clicked.
+    void bindAttributeToEdit(int id)
+    {
+        //====== Getting connection string defined in the web.config file. Pointed to the database we want to use.
+        using (var con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+        {
+            //======= Parameterized select Query.
+            string cmdText = "SELECT * FROM Product_Attributes WHERE Id=@Id";
+
+            //====== Providning information to SQL command object about which query to
+            //====== execute and from where to get database connection information.
+            using (var cmd = new SqlCommand(cmdText, con))
+            {
+                //===== Adding parameters/Values.
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                //===== To check current state of the connection object. If it is closed open the connection
+                //===== to execute the insert query.
+                if (con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+
+                //===== Execute Query.
+                SqlDataReader dr = cmd.ExecuteReader();
+                //===== Check if data present.
+                if (dr.HasRows)
+                {
+                    //===== Read data from datareader.
+                    dr.Read();
+
+                    //===== Bind values to textboxes.
+                    txtProdID.Text = dr["Product_Id"].ToString();
+                    txtAttrName.Text = dr["attribute_name"].ToString();
+                    txtAttrVal.Text = dr["attribute_value"].ToString();
+                    txtPrice.Text = dr["Price"].ToString();
+
+                    //==== Store primary key of the selected record in hiddenfield for future reference.
+                    //==== This will help us when we write update method.
+                    hfSelectedRecord.Value = dr["id"].ToString();
+                }
+                dr.Dispose();
+                //===== close the connection.
+                con.Close();
+            }
+        }
+        //==== Show Update button and hide Save button.
+        btnSave.Visible = false;
+        btnUpdate.Visible = true;
+    }
+
+    //========= Update Button
+    protected void btnUpdate_Click(object sender, EventArgs e)
+    {
+        //====== Getting connection string defined in the web.config file. Pointed to the database we want to use.
+        using (var con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+        {
+            //======= Update Query.
+            string cmdText = "UPDATE Product_Attributes SET Product_Id=@ProductID, attribute_name=@Name, attribute_value=@Value, Price=@Price WHERE Id=@Id";
+
+            //====== Providning information to SQL command object about which query to
+            //====== execute and from where to get database connection information.
+            using (var cmd = new SqlCommand(cmdText, con))
+            {
+                //===== Adding parameters/Values.
+                cmd.Parameters.AddWithValue("@Name", (txtAttrName.Text));
+                cmd.Parameters.AddWithValue("@Value", (txtAttrVal.Text));
+                cmd.Parameters.AddWithValue("@ProductID", Convert.ToInt32(txtProdID.Text));
+                cmd.Parameters.AddWithValue("@Price", Convert.ToDouble(txtPrice.Text));
+
+                //====== Remember we have stored primary key in hiddenfield during
+                //====== binding values into textboxes method:(bindEmployeeDetailToEdit).
+                //====== We will use same id to pass id parameter.
+                cmd.Parameters.AddWithValue("@Id", Convert.ToInt32(hfSelectedRecord.Value));
+
+                //===== To check current state of the connection object. If it is closed open the connection
+                //===== to execute the insert query.
+                if (con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                //===== Execute Query.
+                cmd.ExecuteNonQuery();
+                //===== close the connection.
+                con.Close();
+            }
+        }
+        //===== Clear text from textboxes
+        clearInputControls();
+        //===== Bind data to repeater so that repeater will display updated data.
+        bindAttributeDetailsToRepeater();
+        //===== Show Save button and hide update button.
+        btnSave.Visible = true;
+        btnUpdate.Visible = false;
+
+        //===== Clear Hiddenfield
+        hfSelectedRecord.Value = string.Empty;
+    }
+
+
+}

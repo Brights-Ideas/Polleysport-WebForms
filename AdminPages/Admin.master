@@ -1,0 +1,114 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Admin.master.cs"
+    Inherits="AdminPages_AdminMasterPage" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head runat="server">
+    <meta http-equiv="X-UA-Compatibale" content="IE=8" />
+    <title>Polleysport Admin</title>
+    <!-- Bootstrap -->
+    <link href="../Content/css/bootstrap.css" rel="stylesheet" />
+    <link href="../Content/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- css -->
+    <link href="../Content/css/freelancer.css" rel="stylesheet" />
+    <link href="../Content/css/style.css" rel="stylesheet" type="text/css" />
+    
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+</head>
+<body>
+
+    <!-- header -->
+    <form id="form1" runat="server">
+        <!-- top menu -->
+       
+        <!-- header ends-->
+        <nav class="navbar navbar-default">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-primary">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#page-top"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="navbar-collapse-primary">
+                <ul class="nav navbar-nav pull-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><asp:LoginName ID="loggedinUser" runat="server" /> <i class="fa fa-cog fa-2"></i></a>
+                        <ul class="dropdown-menu">
+                            <li class="dropdown">
+                                <a href="ChangePassword.aspx">Change Password</a>
+                            </li>
+                            <li class="dropdown">
+                                <asp:LoginStatus ID="logoutUser" runat="server" />
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+        <asp:ContentPlaceHolder ID="HeadContent" runat="server">
+        
+        </asp:ContentPlaceHolder>
+        <!--<div class="masthead navbar">
+            <ul class="nav nav-justified">
+                <li class="admin-item">
+                    <a href="Users.aspx">User Management</a>
+                </li>
+                <li class="admin-item">
+                    <a href="AdminProductsManagement.aspx">Product Management</a>
+                </li>
+                <li class="admin-item">
+                    <a href="AdminContent.aspx">Event Management</a></li>
+                <li class="admin-item">
+                    <a href="AdminGalleryManagement.aspx">Gallery Management</a></li>
+                <li class="admin-item">
+                    <a href="AdminAttributes.aspx">Size Managment</a></li>
+                <li class="admin-item">
+                    <a href="#">DP Car Hire Management</a></li>
+            </ul>
+        </div>-->
+        <!-- main menu -->
+        <!-- content -->
+        <div class="container body-content">
+            <nav class="navbar navbar-default navigation" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".main-nav" style="">
+                    <span class="sr-only">Toggle Navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse main-nav">
+                <ul class="nav navbar-nav">
+                   <li><a href="Users.aspx">User Management</a></li>
+                    <li><a href="AdminProductsManagement.aspx">Product Management</a></li>
+                    <li><a href="AdminContent.aspx">Event Management</a></li>
+                    <li><a href="AdminAttributes.aspx">Size Managment</a></li>
+                    <li><a href="#">DP Car Hire Management</a></li>
+                </ul>
+            </div>
+        </nav>
+            <asp:ContentPlaceHolder ID="ContentBody" runat="Server">
+            </asp:ContentPlaceHolder>
+        </div>
+        <!-- content ends-->
+    </form>
+    <!--asp.net form ends -->
+
+</body>
+<!-- scrips -->
+<%--<script type="text/javascript" src="../Scripts/jquery-1.10.2.min.js"></script>--%>
+<script src="../Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="../Scripts/bootstrap.min.js"></script>
+</html>

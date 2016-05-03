@@ -1,0 +1,119 @@
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/AdminPages/Admin.master" AutoEventWireup="true" CodeFile="AdminAttributes.aspx.cs" Inherits="AdminPages_AdminAttributes" %>
+<%@ Register Src="../Controls/PagingControl.ascx" TagName="PagingControl" TagPrefix="uc1" %>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentBody" runat="Server">
+
+    <div class="applicationWindow span14">
+        <div class="modal-header">Product attributes</div>
+        <div class="modal-body">
+
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label for="txtAttrName" class="col-sm-1 control-label">Name</label>
+                    <div class="col-sm-4">
+                        <asp:TextBox CssClass="form-control" ID="txtAttrName" runat="server"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtAttrVal" class="col-sm-1 control-label">Value</label>
+                    <div class="col-sm-4">
+                        <asp:TextBox CssClass="form-control" ID="txtAttrVal" runat="server"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtPrice" class="col-sm-1 control-label">Price</label>
+                    <div class="col-sm-4">
+                        <asp:TextBox CssClass="form-control" ID="txtPrice" runat="server"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtStock" class="col-sm-1 control-label">Stock</label>
+                    <div class="col-sm-4">
+                        <asp:TextBox CssClass="form-control" ID="txtStock" runat="server"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="txtProdID" class="col-sm-1 control-label">Product</label>
+                    <div class="col-sm-4">
+                        <asp:DropDownList ID="txtProdID" runat="server" DataSourceID="products"
+                                AutoPostBack="true" DataTextField="ProductName" DataValueField="ProductID"
+                                CssClass="form-control" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-1 col-sm-10">
+                        <asp:Button Text="Save" OnClick="btnSave_Click" CssClass="btn btn-primary" ID="btnSave" runat="server" />
+
+                        <asp:Button Text="Update" ID="btnUpdate" OnClick="btnUpdate_Click" CssClass="btn btn-primary" Visible="false" runat="server" />
+                    </div>
+                </div>
+            </div>
+
+            <asp:HiddenField ID="hfSelectedRecord" runat="server" />
+
+            <asp:Repeater ID="repAttributeDetails" runat="server" OnItemCommand="repAttributeDetails_ItemCommand">
+                <HeaderTemplate>
+                    <table class="table table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Size ID
+                                </th>
+                                <th>Product ID
+                                </th>
+                                <th>Attribute name
+                                </th>
+                                <th>Attribute value
+                                </th>
+                                <th>Price
+                                </th>
+                                <th>Stock
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                </HeaderTemplate>
+                <ItemTemplate>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <%# Eval("Id") %>
+                            </td>
+
+                            <td>
+                                <%# Eval("Product_Id") %>
+                            </td>
+
+                            <td>
+                                <%# Eval("attribute_name") %>
+                            </td>
+
+                            <td>
+                                <%# Eval("attribute_value") %>
+                            </td>
+                            <td>
+                                <%# String.Format("{0:C}", Eval("Price") ) %>
+                            </td>
+                            <td>
+                                <%# Eval("Stock") %>
+                            </td>
+                            <td colspan="2">
+                                <asp:LinkButton ID="BtnEdit" CssClass="btn btn-primary btn-mini" Text="Edit" CommandName="Edit" ToolTip="Edit an attribute" CommandArgument='<%#Eval("Id") %>' runat="server"><i class="glyphicon glyphicon-pencil"></i></asp:LinkButton>
+                                <asp:LinkButton ID="BtnDelete" CssClass="btn btn-danger btn-mini" ToolTip="Delete a record." OnClientClick="javascript:return confirm('Are you sure to delete record?')" CommandName="Delete" CommandArgument='<%#Eval("Id") %>' runat="server"><i class="glyphicon glyphicon-remove"></i></asp:LinkButton>
+                            </td>
+                        </tr>
+                    </tbody>
+                </ItemTemplate>
+                <FooterTemplate>
+                    </table>
+                </FooterTemplate>
+            </asp:Repeater>
+        </div>
+        <div class="modal-footer">
+          <uc1:PagingControl ID="PagingControl1" runat="server" PageSize="5" />
+       </div>
+    </div>
+    <asp:SqlDataSource ID="attributes" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
+            SelectCommand="SELECT * FROM [Product_Attributes]"></asp:SqlDataSource>
+    <asp:SqlDataSource ID="products" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
+        SelectCommand="SELECT [ProductName], [ProductId] FROM [Products]"></asp:SqlDataSource>
+</asp:Content>
+

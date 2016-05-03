@@ -1,0 +1,212 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Site.master.cs" Inherits="SiteMaster" %>
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="all, follow">
+    <meta name="author" content="Andrew Bright">
+    <meta name="MSSmartTagsPreventParsing" content="TRUE">
+    <meta property="og:title" content="Polleysport - George Polley Motorsport - Road and Race Tyre Specialists">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://www.polleysport.co.uk">
+    <meta property="og:image" content="">
+    <meta property="og:site_name" content="George Polley Motorsport - Road and Race Tyre Specialists">
+    <meta property="og:description" content="George Polley Motorsport, also known as Polleysport is a family run business. We have over 35 years experience in the motorsport industry and can offer a wide range of specialist accessories, suspension, wheels and tyres, we are all drivers ourselves and have the knowledge and understanding to give you the best possible advice and service.">
+    <title><%: Page.Title %> - George Polley Motorsport - Road and Race Tyre Specialists</title>
+    <meta name="keywords" content="Polleysport motorsport Cambridge, George Polley Motorsport Cambridgeshire, polleysport in Cambridgeshire, accessories, transmission, suspension, wheels and tyres, Yokohama Tyres, Racing Tyres, Road legal tyres , Race day tyres, oval racing tyres, off road tyres, van tyres, compomotive wheels, weller wheels, oval racing parts, engine, seat, harness, steering wheel, components, electrical, body panels, exhausts, silencers, fuel components, oils ">
+    <meta name="description" content="George Polley Motorsport, also known as Polleysport is a family run business. We have over 35 years experience in the motorsport industry and can offer a wide range of specialist accessories, suspension, wheels and tyres, we are all drivers ourselves and have the knowledge and understanding to give you the best possible advice and service.">
+
+    <link href="~/Content/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/css/freelancer.css" rel="stylesheet" />
+    <link href="~/Content/css/heroic-features.css" rel="stylesheet" />
+    <link href="~/Content/css/style.css" rel="stylesheet" />
+
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-primary">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#page-top"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="navbar-collapse-primary">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="Default.aspx">Home</a></li>
+                    <li><a href="Products.aspx">Products</a></li>
+                    <li><a href="Events.aspx">Events</a></li>
+                    <li><a href="Gallery.aspx">Gallery</a></li>
+                    <li><a href="Contact.aspx">Contact Us</a></li>
+                    <li><a href="AdminPages/AdminManagement.aspx">Admin Login</a></li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+    <asp:ContentPlaceHolder ID="HeadContent" runat="server">
+    </asp:ContentPlaceHolder>
+    <div class="container body-content">
+        <nav class="navbar navbar-default navigation" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".main-nav" style="">
+                    <span class="sr-only">Toggle Navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse main-nav">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Yokohama
+                                Tyres <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="Category.aspx?showme=1">Racing Tyres</a></li>
+                            <li><a href="Category.aspx?showme=3">Rally Tyres</a></li>
+                            <li><a href="Category.aspx?showme=4">Oval Racing Tyres</a></li>
+                            <li><a href="Category.aspx?showme=5">4 x 4 / Off Road Tyres</a></li>
+                            <li><a href="Category.aspx?showme=20">Road Legal Sports Tyres</a></li>
+                            <li><a href="Category.aspx?showme=21">Sports Tyres - Track Use Only</a></li>
+                            <li><a href="Category.aspx?showme=22">Race Series Tyres</a></li>
+                            <!--<li><a href="Category.aspx?showme=2">Road Legal Race/Track Day Tyres</a></li>
+                            <li><a href="Category.aspx?showme=6">Van Tyres</a></li>-->
+                        </ul>
+                    </li>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Wheels
+                                <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="Category.aspx?showme=7">Compomotive</a></li>
+                            <li><a href="Category.aspx?showme=8">Weller Wheels</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Trans/Suspension
+                                <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="Category.aspx?showme=9">Transmission</a></li>
+                            <li><a href="Category.aspx?showme=10">Suspension</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Oval
+                                Racing Parts <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="Category.aspx?showme=11">Engine</a></li>
+                            <li><a href="Category.aspx?showme=12">Seats/Harnesses</a></li>
+                            <li><a href="Category.aspx?showme=13">Steering Wheels &amp; Components</a></li>
+                            <li><a href="Category.aspx?showme=14">Electrical Components</a></li>
+                            <li><a href="Category.aspx?showme=15">Body Panels</a></li>
+                            <li><a href="Category.aspx?showme=16">Exhaust/Silencers</a></li>
+                            <li><a href="Category.aspx?showme=17">Fuel Components</a></li>
+                            <li><a href="Category.aspx?showme=18">Oils &amp; Lubricants</a></li>
+                            <li><a href="Category.aspx?showme=19">Miscellaneous</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="">Toyo Tyres 
+                                <b class="caret"></b></a>
+
+                    </li>
+                    <li><a href="CarFabrication.aspx">Car Fabrication</a></li>
+                    <li><a href="DPCarHire.aspx">DP Car Hire</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="well">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="thumbnail" style="text-align: center">
+                        <p>
+                            Please note we only deliver to MAINLAND UK from the online shop. For IOM, Channel Islands, Northern Ireland, Eire and Europe,<br />
+                            please ring <strong>(+44)1354 688111</strong> for delivery charges.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <asp:ContentPlaceHolder ID="MainContent" runat="server">
+        </asp:ContentPlaceHolder>
+
+    </div>
+    <footer class="text-center">
+        <div class="footer-above">
+            <div class="container">
+                <div class="row">
+                    <div class="footer-col col-md-4">
+                        <h3>Address</h3>
+                        <p>
+                            GPM (Services) UK Ltd<br />
+                            Wimblington Road Manea,
+                        <br />
+                            nr.March Cambs<br />
+                            PE15 0JR<br />
+                            Company number: <strong>08835755</strong><br />
+                            Vat number: <strong>315 7010 95</strong>
+                        </p>
+                    </div>
+                    <div class="footer-col col-md-4">
+                        <h3>Around the Web</h3>
+                        <ul class="list-inline">
+                            <li><a href="http://www.facebook.com/pages/Polleysportcom/139578522783756" class="btn-social btn-outline"><i class="fa fa-fw fa-facebook"></i></a></li>
+                            <li><a href="https://twitter.com/Polleysport" class="btn-social btn-outline"><i class="fa fa-fw fa-twitter"></i></a></li>
+                        </ul>
+                        <div>
+                            <h3>Accepted Payments</h3>
+                            <img src="http://www.worldpay.com/images/cardlogos/VISA.gif" border="0" alt="Visa Credit payments supported by WorldPay" />
+                            <img src="http://www.worldpay.com/images/cardlogos/visa_debit.gif" border="0" alt="Visa Debit payments supported by WorldPay" />
+                            <img src="http://www.worldpay.com/images/cardlogos/mastercard.gif" border="0" alt="Mastercard payments supported by WorldPay" />
+                            <img src="http://www.worldpay.com/images/cardlogos/maestro.gif" border="0" alt="Maestro payments supported by WorldPay" />
+                            <img src="http://www.worldpay.com/images/cardlogos/JCB.gif" border="0" alt="JCB payments supported by WorldPay" />
+                        </div>
+                    </div>
+                    <div class="footer-col col-md-4">
+                        <h3>Legals</h3>
+                        <ul class="links">
+                            <li><a href="Terms and Conditions.aspx">Terms and conditions</a></li>
+                            <li><a href="Legal Notice.aspx">Privacy Policy</a></li>
+                            <li><a href="Refund Policy.aspx">Refund Policy</a></li>
+                        </ul>
+                        <h3>Contact Us</h3>
+                        <ul>
+                            <li><i class="fa fa-fw fa-phone"></i>01354 688111</li>
+                            <li><a href="mailto:info@polleymotorsport.co.uk?Subject=Contact" target="_top"><i class="fa fa-fw fa-envelope"></i></a>info@polleymotorsport.co.uk</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-below">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        &copy; <%: DateTime.Now.Year %> - George Polley Motorsport
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="js/classie.js"></script>
+    <script src="js/cbpAnimatedHeader.js"></script>
+    
+    <script src="js/freelancer.js"></script>
+</body>
+</html>

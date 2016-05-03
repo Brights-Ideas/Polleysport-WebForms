@@ -1,0 +1,6 @@
+﻿<%@ Page Language="C#" MasterPageFile="~/AdminPages/Admin.master" AutoEventWireup="true" 
+    CodeBehind="AdminEvents.aspx.cs" Inherits="AdminPages_AdminEvents" %>
+
+<asp:Content ID="Content4" ContentPlaceHolderID="ContentBody" runat="Server">
+     
+</asp:Content>

@@ -1,0 +1,70 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        BindPagedDataSource();
+    }
+
+    public int CurrentPage
+    {
+        get
+        {
+            // look for current page in ViewState
+            object o = this.ViewState["_CurrentPage"];
+            if (o == null)
+                return 0;
+            else
+                return (int)o;
+        }
+        set { this.ViewState["_CurrentPage"] = value; }
+    }
+
+    private void BindPagedDataSource()
+    {
+        DataSourceSelectArguments arg = new DataSourceSelectArguments();
+        DataView dv = (DataView)this.gallery.Select(arg);
+        PagedDataSource objPds = new PagedDataSource();
+        objPds.DataSource = dv;
+        objPds.AllowPaging = true;
+        objPds.PageSize = 5;
+        objPds.CurrentPageIndex = CurrentPage;
+        lblCurrentPage.Text = "Page " + (CurrentPage + 1).ToString() + " of "
+            + objPds.PageCount.ToString();
+        //Enable/Disable Prev and Next buttons 
+        btnPrev.Enabled = !objPds.IsFirstPage;
+        btnNext.Enabled = !objPds.IsLastPage;
+        galleryRepeater.DataSource = objPds;
+        galleryRepeater.DataBind();
+        if (objPds.PageCount > 1)
+        {
+            pnlNavigation.Visible = true;
+        }
+    }
+
+    public void btnNext_Click(object sender, System.EventArgs e)
+    {
+        // Set viewstate variable to the next page
+        CurrentPage += 1;
+        // Reload control
+        BindPagedDataSource();
+    }
+
+    public void btnPrev_Click(object sender, System.EventArgs e)
+    {
+        // Set viewstate variable to the previous page
+        if (CurrentPage > 0)
+            CurrentPage -= 1;
+        else
+            CurrentPage = 1;
+        // Reload control
+        BindPagedDataSource();
+    }
+}

@@ -1,0 +1,152 @@
+﻿<%@ Page Language="C#" MasterPageFile="~/AdminPages/Admin.master" AutoEventWireup="true"
+    CodeFile="Default.aspx.cs" Inherits="AdminPages_Default" %>
+
+<asp:Content ID="Content1" ContentPlaceHolderID="headContent" runat="Server">
+</asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="ContentBody" runat="Server">
+    <div class="content_std">
+
+        <asp:Label ID="lblmsg" Text="" runat="server"></asp:Label><br />
+        <asp:Label ID="lblImageMsg" Text="" runat="server"></asp:Label>
+
+        <asp:FormView ID="fvProducts" runat="server" DataKeyNames="ProductID"
+        DataSourceID="sdsProducts" AllowPaging="true" Caption="Products" CaptionAlign="Top"
+        PagerSettings-Mode="NumericFirstLast" PagerSettings-PageButtonCount="5">
+        <ItemTemplate>
+        <div class="product-container-left">
+                    <div class="prod-img" style="float: left;">
+                        <img id="ImageContent" alt='<%# Eval("ProductName") %>' src='../<%# Eval("ProductImageURL") %>' />
+                    </div>
+                    <div class="prodInfoBox left">
+                        <h3>
+                            <%# Eval("ProductName") %></h3>
+                        <p>
+                            <%# Eval("ProductDescription") %></p>
+                    </div>
+                    <div class="right_block">
+                        <b>Category:</b> <%# Eval("CategoryID") %>
+                        <br />
+                        <br />
+                        <asp:LinkButton ID="lbEdit" CausesValidation="false" CssClass="button" CommandName="Edit" runat="server">Edit</asp:LinkButton>
+                        <br /><br />
+                        <asp:LinkButton ID="lbAddNew" CausesValidation="false" CssClass="button" CommandName="New" runat="server">Add New Item</asp:LinkButton>
+                        <br /><br />
+                        <asp:LinkButton ID="lbDelete" CausesValidation="false" CssClass="button" CommandName="Delete" runat="server" OnClientClick="return confirm('Are you sure you want to delete this item?');">Delete</asp:LinkButton>
+                    </div>
+                </div>
+        </ItemTemplate>
+        <EditItemTemplate>
+        <h1>Edit Product</h1>
+        <div id="contact_form" class="content_std">
+         <table>
+         <tr>
+            <td>Product name: </td>
+            <td><asp:TextBox ID="txtProductName" Text='<%# Bind("ProductName") %>' runat="server"></asp:TextBox></td>
+          </tr>
+          <tr>
+            <td>Description: </td>
+            <td><asp:TextBox ID="txtDescription" TextMode="MultiLine" Text='<%# Bind("ProductDescription") %>' runat="server"></asp:TextBox></td>
+          </tr>
+          <tr>
+            <td>Price: </td>
+            <td><asp:TextBox ID="txtPrice" Text='<%#Bind("ProductPrice", "{0:c}") %>' runat="server"></asp:TextBox></td>
+          </tr>
+          <tr>
+            <td>Shipping: </td>
+            <td><asp:TextBox ID="txtShipping" Text='<%#Bind("ShippingCost", "{0:c}") %>' runat="server"></asp:TextBox></td>
+          </tr>
+          <tr>
+            <td>Stock Level: </td>
+            <td><asp:TextBox ID="txtStock" runat="server" Text='<%#Bind("in_stock") %>' /></td>
+          </tr>
+          <tr>
+            <td><img alt="Upload Image" id="prodImage" src="../Images/uploadphoto.png" /></td>
+            <td><asp:FileUpload ID="uploadPicture" runat="server" />
+            <asp:HiddenField ID="hfImageURL" runat="server" Value='<%#Bind("ProductImageUrl") %>' /></td>
+          </tr>
+          <tr>
+            <td>Category: </td><td><asp:DropDownList ID="ddlCategory"
+            CssClass="dropDown"
+            DataSourceID="sdsCategory"
+            DataValueField="CategoryID"
+            DataTextField="Name"
+            SelectedValue='<%# Bind("CategoryID") %>' runat="server" >
+           </asp:DropDownList></td>
+          </tr>
+           </table>
+           </div>
+           <asp:LinkButton ID="lbSave" CommandName="Update" OnClick="lbtnEdit_Click" CssClass="button" runat="server">Save</asp:LinkButton>
+           <asp:LinkButton ID="lbCancel" CommandName="Cancel" CssClass="button" runat="server">Cancel</asp:LinkButton>
+        </EditItemTemplate>
+        <InsertItemTemplate>
+        <h1>Add Product</h1>
+        <div id="contact_form" class="content_std">
+         <table border="0" width="100%">
+          <tr><td>Product name: </td><td><asp:TextBox ID="txtProductName" Text='<%# Bind("ProductName") %>' runat="server"></asp:TextBox></td></tr>
+          <tr><td>Description: </td><td><asp:TextBox ID="txtDescription" TextMode="MultiLine" Text='<%# Bind("ProductDescription") %>' runat="server"></asp:TextBox></td></tr>
+          <tr><td>Price: </td><td><asp:TextBox ID="txtPrice" Text='<%#Bind("ProductPrice", "{0:c}") %>' runat="server"></asp:TextBox></td></tr>
+          <tr><td>Shipping: </td><td><asp:TextBox ID="txtShipping" Text='<%#Bind("ShippingCost", "{0:c}") %>' runat="server"></asp:TextBox></td></tr>
+          <tr><td>Stock Level: </td><td><asp:TextBox ID="txtStock" runat="server" Text='<%#Bind("in_stock") %>' /></td></tr>
+          <tr><td><img alt="Upload Image" id="prodImage" src="../Images/uploadphoto.png" /></td><td><asp:FileUpload ID="uploadPicture" runat="server" />
+          <asp:HiddenField ID="hfImageURL" runat="server" Value='<%#Bind("ProductImageUrl") %>' /></td></tr>
+          <tr><td>Category: </td><td><asp:DropDownList ID="ddlCategory"
+           DataSourceID="sdsCategory"
+           DataValueField="CategoryID"
+           DataTextField="Name"
+           SelectedValue='<%# Bind("CategoryID") %>' runat="server">
+          </asp:DropDownList></td></tr>
+          </table>
+          </div>
+         <asp:LinkButton ID="lbSave" CommandName="Insert" OnClick="lbtnAdd_Click" runat="server">Save</asp:LinkButton> 
+         <asp:LinkButton ID="lbCancel" CommandName="Cancel" runat="server">Cancel</asp:LinkButton>
+        </InsertItemTemplate>
+        <EmptyDataTemplate>
+        There is no records in data source.
+        </EmptyDataTemplate>
+        <PagerTemplate>
+        <hr />
+        <div>
+            Page # <%#fvProducts.PageIndex+1 %>
+        </div>
+        <div>
+         <asp:LinkButton ID="btnFirst" CssClass="button" CommandName="Page" CommandArgument="First" Text="First page" runat="server"/> 
+
+         <asp:LinkButton ID="btnPrevious" CssClass="button" CommandName="Page" CommandArgument="Prev"  Text="Previous" runat="server"/> 
+         <asp:LinkButton ID="btnNext" CssClass="button" CommandName="Page" CommandArgument="Next"  Text="Next" runat="server"/> 
+
+         <asp:LinkButton ID="btnLast" CssClass="button" CommandName="Page" CommandArgument="Last"  Text="Last page" runat="server"/>
+        </div>
+        </PagerTemplate>
+        </asp:FormView>
+            <asp:SqlDataSource ID="sdsProducts" runat="server" 
+                ConnectionString="<%$ ConnectionStrings:ConnectionString %>" 
+                SelectCommand="Products_View" SelectCommandType="StoredProcedure" CancelSelectOnNullParameter="false"
+                InsertCommand="Products_Insert" InsertCommandType="StoredProcedure" 
+                UpdateCommand="Products_Edit" UpdateCommandType="StoredProcedure" 
+                DeleteCommand="UPDATE Products SET enabled = 0 WHERE ProductID=@ProductID">
+             <UpdateParameters>
+                <asp:Parameter Name="@ProductName" Type="String" />
+                <asp:Parameter Name="@ProductDescription" Type="String" />
+                <asp:Parameter Name="@Stock" Type="Int32" />
+                <asp:Parameter Name="@ProductPrice" Type="Decimal" />
+                <asp:Parameter Name="@Shipping" Type="Decimal" />
+                <asp:Parameter Name="@ImageURL" Type="String" />
+                <asp:Parameter Name="@CatId" Type="Int32" />
+                <asp:Parameter Name="@Id" Type="Int32" />
+                <asp:Parameter Name="@SizePrice" Type="Decimal" />
+            </UpdateParameters>
+            <InsertParameters>
+             <asp:Parameter Name="@ProductName" Type="String" />
+             <asp:Parameter Name="@ProductDescription" Type="String" />
+             <asp:Parameter Name="@Image" Type="String" />
+             <asp:Parameter Name="@CategoryID" Type="Int32" />
+             <asp:Parameter Name="@ProductImageURL" Type="String" />             
+           </InsertParameters>
+            </asp:SqlDataSource>
+            <asp:SqlDataSource ID="sdsCategory" runat="server"
+                ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
+                SelectCommand="SELECT [name], [categoryID] FROM [Category]">
+            </asp:SqlDataSource>
+    
+    </div>
+</asp:Content>

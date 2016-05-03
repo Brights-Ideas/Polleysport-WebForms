@@ -1,0 +1,69 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class AdminPages_AdminGallery : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        Gallery.DataBind();
+    }
+
+    protected void InsertButton_Click(object sender, EventArgs e)
+    {
+        StartUpLoad();
+        Gallery.Insert();
+
+    }
+
+    private void StartUpLoad()
+    {
+        //get the file name of the posted image
+        string imgName = ((FileUpload)fvGallery.Controls[0].FindControl("uploadPicture")).FileName; //uploadPicture.FileName;
+
+        //get the size in bytes that
+        int imgSize = ((FileUpload)fvGallery.Controls[0].FindControl("uploadPicture")).PostedFile.ContentLength; //uploadPicture.PostedFile.ContentLength;
+
+        //validates the posted file before saving
+        if (((FileUpload)fvGallery.Controls[0].FindControl("uploadPicture")).PostedFile != null && ((FileUpload)fvGallery.Controls[0].FindControl("uploadPicture")).FileName != "")
+        {
+            //if (FileUpload1.PostedFile != null && FileUpload1.PostedFile.FileName != "") {
+            // 10240 KB means 10MB, You can change the value based on your requirement
+            if (((FileUpload)fvGallery.Controls[0].FindControl("uploadPicture")).PostedFile.ContentLength > 20240)
+            {
+                //if 
+                //FilenameDetails.InnerHtml = "File is too big";
+                //message.Text
+                Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('File is too big.')", true);
+
+            }
+            else
+            {
+
+                //For live
+                string imagePath = Server.MapPath("~/GalleryImages/");
+                imagePath = imagePath + @"\" + imgName;
+
+                //For testing
+                //string imagePath = ConfigurationManager.AppSettings["UploadPath"] + imgName;
+
+                //then save it to the Folder
+                ((FileUpload)fvGallery.Controls[0].FindControl("uploadPicture")).SaveAs(imagePath);
+
+                ImageResizeUtils.ResizeImage(imagePath, 300, 300);
+                Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('Image saved!')", true);
+                //ProductImages/imgName
+                ((HiddenField)fvGallery.Controls[0].FindControl("hfImageURL")).Value = "GalleryImages/" + imgName;
+            }
+        }
+
+    }
+
+    protected void saveDetails(object sender, EventArgs e)
+    {
+        StartUpLoad();
+        Gallery.Update();
+    }
+}

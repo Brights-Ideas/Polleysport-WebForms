@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Data.SqlClient;
+using System.Configuration;
+
+public partial class AdminPages_Default : System.Web.UI.Page
+{
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        // The Page is accessed for the first time. 
+        if (!Page.IsPostBack)
+        {
+            fvProducts.DataBind();
+        }
+    }
+
+    protected void lbtnEdit_Click(object sender, EventArgs e)
+    {
+        StartUpLoad();
+        sdsProducts.Update();
+        lblmsg.Text = "Successfully Addded Updated!...";
+    }
+
+    protected void lbtnAdd_Click(object sender, EventArgs e)
+    {
+        StartUpLoad();
+        sdsProducts.Insert();
+        lblmsg.Text = "Successfully Addded!...";
+    }
+
+    private void StartUpLoad()
+    {
+        //get the file name of the posted image
+        string imgName = ((FileUpload)fvProducts.Controls[0].FindControl("uploadPicture")).FileName; //uploadPicture.FileName;
+        //get the size in bytes that
+        int imgSize = ((FileUpload)fvProducts.Controls[0].FindControl("uploadPicture")).PostedFile.ContentLength; //uploadPicture.PostedFile.ContentLength;
+
+        //validates the posted file before saving
+        if (((FileUpload)fvProducts.Controls[0].FindControl("uploadPicture")).PostedFile != null && ((FileUpload)fvProducts.Controls[0].FindControl("uploadPicture")).FileName != "")
+        {
+            //if (FileUpload1.PostedFile != null && FileUpload1.PostedFile.FileName != "") {
+            // 10240 KB means 10MB, You can change the value based on your requirement
+            if (((FileUpload)fvProducts.Controls[0].FindControl("uploadPicture")).PostedFile.ContentLength > 20240)
+            {
+                //FilenameDetails.InnerHtml = "File is too big";
+                lblImageMsg.Text = "File is too big."; //Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('File is too big.')", true);
+            }
+            else
+            {
+                //For live
+                string imagePath = Server.MapPath("~/ProductImages/");
+                imagePath = imagePath + @"\" + imgName;
+                //For testing
+                //string imagePath = ConfigurationManager.AppSettings["UploadPath"] + imgName;
+
+                //then save it to the Folder
+                ((FileUpload)fvProducts.Controls[0].FindControl("uploadPicture")).SaveAs(imagePath);
+                //
+                ImageResizeUtils.ResizeImage(imagePath, 300, 300);
+                lblImageMsg.Text = "File is too big."; //Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('Image saved!')", true);
+                //ProductImages/imgName
+                ((HiddenField)fvProducts.Controls[0].FindControl("hfImageURL")).Value = "ProductImages/" + imgName;
+            }
+        }
+    }
+
+}
