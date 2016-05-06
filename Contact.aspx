@@ -55,6 +55,9 @@
                                 ForeColor="Red"></asp:RequiredFieldValidator>
                     </div>
                     <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="6LfrIx8TAAAAAHWZPE0Dij58Pe8qmWv-bXcZoq4F"></div>
+                    </div>
+                    <div class="form-group">
                         <asp:Button ID="btnSubmitMessage" runat="server" CssClass="btn btn-success" Text="Send a message" OnClick="btnSubmitMessage_Click" />
                     </div>
 
@@ -89,5 +92,5 @@
             $(this).closest('form').find("input[type=text], textarea").val("");
         });
     </script>
-
+    <script src='https://www.google.com/recaptcha/api.js'></script>
 </asp:Content>

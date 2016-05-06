@@ -10,11 +10,217 @@ using System.Data.SqlClient;
 
 public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 {
+    DataTable dt;
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!this.IsPostBack)
             CurrentPage = 0;
-        BindPagedDataSource();
+        //BindPagedDataSource();
+        BindGrid();
+    }
+
+    public void BindGrid()
+    {
+        try
+        {
+            //Fetch data from mysql database
+            string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            SqlConnection conn = new SqlConnection(connString);
+            conn.Open();
+            string cmd = "select * from Products";
+            SqlDataAdapter dAdapter = new SqlDataAdapter(cmd, conn);
+            DataSet ds = new DataSet();
+            dAdapter.Fill(ds);
+            dt = ds.Tables[0];
+            //Bind the fetched data to gridview
+            GridView1.DataSource = dt;
+            GridView1.DataBind();
+
+        }
+        catch (SqlException ex)
+        {
+            System.Console.Error.Write(ex.Message);
+
+        }
+
+    }
+
+    protected void GridView1_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        int index = Convert.ToInt32(e.CommandArgument);
+        if (e.CommandName.Equals("detail"))
+        {
+            string code = GridView1.DataKeys[index].Value.ToString();
+            IEnumerable<DataRow> query = from i in dt.AsEnumerable()
+                                         where i.Field<String>("Code").Equals(code)
+                                         select i;
+            DataTable detailTable = query.CopyToDataTable<DataRow>();
+            DetailsView1.DataSource = detailTable;
+            DetailsView1.DataBind();
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.Append(@"<script type='text/javascript'>");
+            sb.Append("$('#detailModal').modal('show');");
+            sb.Append(@"</script>");
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "DetailModalScript", sb.ToString(), false);
+        }
+        else if (e.CommandName.Equals("editRecord"))
+        {
+            GridViewRow gvrow = GridView1.Rows[index];
+            lblCountryCode.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
+            txtPopulation.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
+            txtName.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
+            txtContinent1.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
+            lblResult.Visible = false;
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.Append(@"<script type='text/javascript'>");
+            sb.Append("$('#editModal').modal('show');");
+            sb.Append(@"</script>");
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "EditModalScript", sb.ToString(), false);
+
+        }
+        else if (e.CommandName.Equals("deleteRecord"))
+        {
+            string code = GridView1.DataKeys[index].Value.ToString();
+            hfCode.Value = code;
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.Append(@"<script type='text/javascript'>");
+            sb.Append("$('#deleteModal').modal('show');");
+            sb.Append(@"</script>");
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "DeleteModalScript", sb.ToString(), false);
+        }
+
+    }
+
+    protected void btnSave_Click(object sender, EventArgs e)
+    {
+        string code = lblCountryCode.Text;
+        int population = Convert.ToInt32(txtPopulation.Text);
+        string countryname = txtName.Text;
+        string continent = txtContinent1.Text;
+        executeUpdate(code, population, countryname, continent);
+        BindGrid();
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.Append(@"<script type='text/javascript'>");
+        sb.Append("alert('Records Updated Successfully');");
+        sb.Append("$('#editModal').modal('hide');");
+        sb.Append(@"</script>");
+        ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "EditHideModalScript", sb.ToString(), false);
+
+    }
+
+    private void executeUpdate(string code, int population, string countryname, string continent)
+    {
+        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        try
+        {
+            SqlConnection conn = new SqlConnection(connString);
+            conn.Open();
+            string updatecmd = "update tblCountry set Population=@population, Name=@countryname,Continent=@continent where Code=@code";
+            SqlCommand updateCmd = new SqlCommand(updatecmd, conn);
+            updateCmd.Parameters.AddWithValue("@population", population);
+            updateCmd.Parameters.AddWithValue("@countryname", countryname);
+            updateCmd.Parameters.AddWithValue("@continent", continent);
+            updateCmd.Parameters.AddWithValue("@code", code);
+            updateCmd.ExecuteNonQuery();
+            conn.Close();
+
+        }
+        catch (SqlException me)
+        {
+            System.Console.Error.Write(me.InnerException.Data);
+        }
+    }
+
+    protected void btnAdd_Click(object sender, EventArgs e)
+    {
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.Append(@"<script type='text/javascript'>");
+        sb.Append("$('#addModal').modal('show');");
+        sb.Append(@"</script>");
+        ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "AddShowModalScript", sb.ToString(), false);
+
+    }
+
+    protected void btnAddRecord_Click(object sender, EventArgs e)
+    {
+        string code = txtCode.Text;
+        string name = txtCountryName.Text;
+        string region = txtRegion.Text;
+        string continent = txtContinent.Text;
+        int population = Convert.ToInt32(txtTotalPopulation.Text);
+        int indyear = Convert.ToInt32(txtIndYear.Text);
+        executeAdd(code, name, continent, region, population, indyear);
+        BindGrid();
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.Append(@"<script type='text/javascript'>");
+        sb.Append("alert('Record Added Successfully');");
+        sb.Append("$('#addModal').modal('hide');");
+        sb.Append(@"</script>");
+        ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "AddHideModalScript", sb.ToString(), false);
+
+
+    }
+
+    private void executeAdd(string code, string name, string continent, string region, int population, int indyear)
+    {
+        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        try
+        {
+            SqlConnection conn = new SqlConnection(connString);
+            conn.Open();
+            string updatecmd = "insert into tblCountry (Code,Name,Continent,Region,Population,IndepYear) values (@code,@name,@continent,@region,@population,@indyear)";
+            SqlCommand addCmd = new SqlCommand(updatecmd, conn);
+            addCmd.Parameters.AddWithValue("@code", code);
+            addCmd.Parameters.AddWithValue("@name", name);
+            addCmd.Parameters.AddWithValue("@continent", continent);
+            addCmd.Parameters.AddWithValue("@region", region);
+            addCmd.Parameters.AddWithValue("@population", population);
+            addCmd.Parameters.AddWithValue("@indyear", indyear);
+            addCmd.ExecuteNonQuery();
+            conn.Close();
+
+        }
+        catch (SqlException me)
+        {
+            System.Console.Write(me.Message);
+        }
+    }
+
+    protected void btnDelete_Click(object sender, EventArgs e)
+    {
+        string code = hfCode.Value;
+        executeDelete(code);
+        BindGrid();
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.Append(@"<script type='text/javascript'>");
+        sb.Append("alert('Record deleted Successfully');");
+        sb.Append("$('#deleteModal').modal('hide');");
+        sb.Append(@"</script>");
+        ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "delHideModalScript", sb.ToString(), false);
+
+
+    }
+
+    private void executeDelete(string code)
+    {
+        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        try
+        {
+            SqlConnection conn = new SqlConnection(connString);
+            conn.Open();
+            string updatecmd = "delete from tblCountry where Code=@code";
+            SqlCommand addCmd = new SqlCommand(updatecmd, conn);
+            addCmd.Parameters.AddWithValue("@code", code);
+            addCmd.ExecuteNonQuery();
+            conn.Close();
+
+        }
+        catch (SqlException me)
+        {
+            System.Console.Write(me.Message);
+        }
+
     }
 
     public int CurrentPage
@@ -31,58 +237,58 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         set { this.ViewState["_CurrentPage"] = value; }
     }
 
-    private void BindRepeater()
-    {
-        string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-        using (SqlConnection con = new SqlConnection(constr))
-        {
-            using (SqlCommand cmd = new SqlCommand("Customers_CRUD"))
-            {
-                cmd.Parameters.AddWithValue("@Action", "SELECT");
-                using (SqlDataAdapter sda = new SqlDataAdapter())
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Connection = con;
-                    sda.SelectCommand = cmd;
-                    using (DataTable dt = new DataTable())
-                    {
-                        sda.Fill(dt);
-                        prodRepeater.DataSource = dt;
-                        prodRepeater.DataBind();
-                    }
-                }
-            }
-        }
-    }
+    //private void BindRepeater()
+    //{
+    //    string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+    //    using (SqlConnection con = new SqlConnection(constr))
+    //    {
+    //        using (SqlCommand cmd = new SqlCommand("Customers_CRUD"))
+    //        {
+    //            cmd.Parameters.AddWithValue("@Action", "SELECT");
+    //            using (SqlDataAdapter sda = new SqlDataAdapter())
+    //            {
+    //                cmd.CommandType = CommandType.StoredProcedure;
+    //                cmd.Connection = con;
+    //                sda.SelectCommand = cmd;
+    //                using (DataTable dt = new DataTable())
+    //                {
+    //                    sda.Fill(dt);
+    //                    prodRepeater.DataSource = dt;
+    //                    prodRepeater.DataBind();
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
-    private void BindPagedDataSource()
-    {
-        DataSourceSelectArguments arg = new DataSourceSelectArguments();
-        DataView dv = (DataView)this.prods.Select(arg);
-        PagedDataSource objPds = new PagedDataSource();
-        objPds.DataSource = dv;
-        objPds.AllowPaging = true;
-        objPds.PageSize = 5;
-        objPds.CurrentPageIndex = CurrentPage;
-        lblCurrentPage.Text = "Page " + (CurrentPage + 1).ToString() + " of "
-            + objPds.PageCount.ToString();
-        //Enable/Disable Prev and Next buttons 
-        btnPrev.Enabled = !objPds.IsFirstPage;
-        btnNext.Enabled = !objPds.IsLastPage;
-        prodRepeater.DataSource = objPds;
-        prodRepeater.DataBind();
-        if (objPds.PageCount > 1)
-        {
-            pnlNavigation.Visible = true;
-        }
-    }
+    //private void BindPagedDataSource()
+    //{
+    //    DataSourceSelectArguments arg = new DataSourceSelectArguments();
+    //    DataView dv = (DataView)this.prods.Select(arg);
+    //    PagedDataSource objPds = new PagedDataSource();
+    //    objPds.DataSource = dv;
+    //    objPds.AllowPaging = true;
+    //    objPds.PageSize = 5;
+    //    objPds.CurrentPageIndex = CurrentPage;
+    //    lblCurrentPage.Text = "Page " + (CurrentPage + 1).ToString() + " of "
+    //        + objPds.PageCount.ToString();
+    //    //Enable/Disable Prev and Next buttons 
+    //    btnPrev.Enabled = !objPds.IsFirstPage;
+    //    btnNext.Enabled = !objPds.IsLastPage;
+    //    prodRepeater.DataSource = objPds;
+    //    prodRepeater.DataBind();
+    //    if (objPds.PageCount > 1)
+    //    {
+    //        pnlNavigation.Visible = true;
+    //    }
+    //}
 
     public void btnNext_Click(object sender, System.EventArgs e)
     {
         // Set viewstate variable to the next page
         CurrentPage += 1;
         // Reload control
-        BindPagedDataSource();
+        //BindPagedDataSource();
     }
 
     public void btnPrev_Click(object sender, System.EventArgs e)
@@ -93,7 +299,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         else
             CurrentPage = 1;
         // Reload control
-        BindPagedDataSource();
+        //BindPagedDataSource();
     }
 
     protected void OnEdit(object sender, EventArgs e)
@@ -134,7 +340,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
                 con.Close();
             }
         }
-        this.BindRepeater();
+        //this.BindRepeater();
     }
 
     private void ToggleElements(RepeaterItem item, bool isEdit)
