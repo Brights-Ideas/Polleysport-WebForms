@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -20,17 +21,18 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         BindGrid();
     }
 
+    #region Admin CRUD Grid
     public void BindGrid()
     {
         try
         {
             //Fetch data from mysql database
-            string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-            SqlConnection conn = new SqlConnection(connString);
+            var connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+            var conn = new SqlConnection(connString);
             conn.Open();
-            string cmd = "select * from Products";
-            SqlDataAdapter dAdapter = new SqlDataAdapter(cmd, conn);
-            DataSet ds = new DataSet();
+            const string cmd = "select * from Products";
+            var dAdapter = new SqlDataAdapter(cmd, conn);
+            var ds = new DataSet();
             dAdapter.Fill(ds);
             dt = ds.Tables[0];
             //Bind the fetched data to gridview
@@ -40,7 +42,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         }
         catch (SqlException ex)
         {
-            System.Console.Error.Write(ex.Message);
+            Console.Error.Write(ex.Message);
 
         }
 
@@ -51,14 +53,15 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         int index = Convert.ToInt32(e.CommandArgument);
         if (e.CommandName.Equals("detail"))
         {
-            string code = GridView1.DataKeys[index].Value.ToString();
+            //string code = GridView1.DataKeys[index].Value.ToString();
+            string productID = GridView1.DataKeys[index].Value.ToString();
             IEnumerable<DataRow> query = from i in dt.AsEnumerable()
-                                         where i.Field<String>("Code").Equals(code)
+                                         where i.Field<String>("ProductID").Equals(productID)
                                          select i;
             DataTable detailTable = query.CopyToDataTable<DataRow>();
             DetailsView1.DataSource = detailTable;
             DetailsView1.DataBind();
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
             sb.Append("$('#detailModal').modal('show');");
             sb.Append(@"</script>");
@@ -67,12 +70,14 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         else if (e.CommandName.Equals("editRecord"))
         {
             GridViewRow gvrow = GridView1.Rows[index];
-            lblCountryCode.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
-            txtPopulation.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
-            txtName.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
-            txtContinent1.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
+            //lblCountryCode.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
+            txtprodTitle.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
+            //txtPopulation.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
+            txtXtext.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
+            txtStock.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
+            txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
             lblResult.Visible = false;
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
             sb.Append("$('#editModal').modal('show');");
             sb.Append(@"</script>");
@@ -83,7 +88,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         {
             string code = GridView1.DataKeys[index].Value.ToString();
             hfCode.Value = code;
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            var sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
             sb.Append("$('#deleteModal').modal('show');");
             sb.Append(@"</script>");
@@ -94,13 +99,25 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     protected void btnSave_Click(object sender, EventArgs e)
     {
-        string code = lblCountryCode.Text;
-        int population = Convert.ToInt32(txtPopulation.Text);
-        string countryname = txtName.Text;
-        string continent = txtContinent1.Text;
-        executeUpdate(code, population, countryname, continent);
+        //string code = lblCountryCode.Text;
+        //int population = Convert.ToInt32(txtPopulation.Text);
+        //string countryname = txtName.Text;
+        //string continent = txtContinent1.Text;
+
+        string Name = txtprodTitle.Text;
+        string Description = txtXtext.Text;
+        int Stock = Convert.ToInt32(txtStock.Text);
+        decimal Price = Convert.ToDecimal(txtPrice.Text);
+        decimal Shipping = Convert.ToDecimal(txtSHP.Text);
+        string ImageUrl = hfImageURL.Value;
+        int CategoryID = Convert.ToInt32(ddCatId.SelectedValue);
+        decimal SizePrice = Convert.ToDecimal(txtSizePrice.Text);
+
+	    int ProductID = Convert.ToInt32(hdn_prod.Value);
+        
+        executeUpdate(ProductID, Name, Description, Stock, Price, Shipping, ImageUrl, CategoryID, SizePrice);
         BindGrid();
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        var sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
         sb.Append("alert('Records Updated Successfully');");
         sb.Append("$('#editModal').modal('hide');");
@@ -109,32 +126,50 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     }
 
-    private void executeUpdate(string code, int population, string countryname, string continent)
+    private void executeUpdate(int ProductID, string Name, string Description, int Stock, decimal Price, decimal Shipping, string ImageUrl, int CategoryID, decimal SizePrice)
     {
-        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
-            SqlConnection conn = new SqlConnection(connString);
+            var conn = new SqlConnection(connString);
             conn.Open();
-            string updatecmd = "update tblCountry set Population=@population, Name=@countryname,Continent=@continent where Code=@code";
-            SqlCommand updateCmd = new SqlCommand(updatecmd, conn);
-            updateCmd.Parameters.AddWithValue("@population", population);
-            updateCmd.Parameters.AddWithValue("@countryname", countryname);
-            updateCmd.Parameters.AddWithValue("@continent", continent);
-            updateCmd.Parameters.AddWithValue("@code", code);
+            string updatecmd = "UPDATE Products SET ProductName=@Name, " +
+                               "ProductDescription=@Description," +
+                               "in_stock=@Stock," +
+                               "ProductPrice=@Price," +
+                               "ShippingCost=@Shipping," +
+                               "ProductImageUrl=@ImageURL," +
+                               "categoryID=@CatId" +
+                               "WHERE ProductID=@ProductID";
+            var updateCmd = new SqlCommand(updatecmd, conn);
+            updateCmd.Parameters.AddWithValue("@Name", Name);
+            updateCmd.Parameters.AddWithValue("@Description", Description);
+            updateCmd.Parameters.AddWithValue("@Stock", Stock);
+            updateCmd.Parameters.AddWithValue("@Price", Price);
+            updateCmd.Parameters.AddWithValue("@Shipping", Shipping);
+            updateCmd.Parameters.AddWithValue("@ImageURL", ImageUrl);
+            updateCmd.Parameters.AddWithValue("@CatId", CategoryID);
+            updateCmd.Parameters.AddWithValue("@ProductID", ProductID);
+
+            updateCmd.Parameters.AddWithValue("@SizePrice", SizePrice);
+	        //updateCmd.Parameters.AddWithValue("@Id", int
+            //updateCmd.Parameters.AddWithValue("@population", population);
+            //updateCmd.Parameters.AddWithValue("@countryname", countryname);
+            //updateCmd.Parameters.AddWithValue("@continent", continent);
+            //updateCmd.Parameters.AddWithValue("@ProductID", ProductID);
             updateCmd.ExecuteNonQuery();
             conn.Close();
 
         }
         catch (SqlException me)
         {
-            System.Console.Error.Write(me.InnerException.Data);
+            Console.Error.Write(me.InnerException.Data);
         }
     }
 
     protected void btnAdd_Click(object sender, EventArgs e)
     {
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        var sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
         sb.Append("$('#addModal').modal('show');");
         sb.Append(@"</script>");
@@ -152,7 +187,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         int indyear = Convert.ToInt32(txtIndYear.Text);
         executeAdd(code, name, continent, region, population, indyear);
         BindGrid();
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        var sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
         sb.Append("alert('Record Added Successfully');");
         sb.Append("$('#addModal').modal('hide');");
@@ -164,12 +199,14 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     private void executeAdd(string code, string name, string continent, string region, int population, int indyear)
     {
-        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            string updatecmd = "insert into tblCountry (Code,Name,Continent,Region,Population,IndepYear) values (@code,@name,@continent,@region,@population,@indyear)";
+            string updatecmd = "insert into tblCountry (Code,Name,Continent,Region,Population,IndepYear) " +
+                               "values " +
+                               "(@code,@name,@continent,@region,@population,@indyear)";
             SqlCommand addCmd = new SqlCommand(updatecmd, conn);
             addCmd.Parameters.AddWithValue("@code", code);
             addCmd.Parameters.AddWithValue("@name", name);
@@ -183,7 +220,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         }
         catch (SqlException me)
         {
-            System.Console.Write(me.Message);
+            Console.Write(me.Message);
         }
     }
 
@@ -192,7 +229,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         string code = hfCode.Value;
         executeDelete(code);
         BindGrid();
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        var sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
         sb.Append("alert('Record deleted Successfully');");
         sb.Append("$('#deleteModal').modal('hide');");
@@ -204,7 +241,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     private void executeDelete(string code)
     {
-        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
@@ -223,18 +260,126 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     }
 
+    #endregion
+
+    #region Pagination controls
     public int CurrentPage
     {
         get
         {
             // look for current page in ViewState
-            object o = this.ViewState["_CurrentPage"];
+            object o = ViewState["_CurrentPage"];
             if (o == null)
                 return 0;
-            else
-                return (int)o;
+            return (int)o;
         }
-        set { this.ViewState["_CurrentPage"] = value; }
+        set { ViewState["_CurrentPage"] = value; }
+    }
+
+    public void btnNext_Click(object sender, System.EventArgs e)
+    {
+        // Set viewstate variable to the next page
+        CurrentPage += 1;
+        // Reload control
+        //BindPagedDataSource();
+    }
+
+    public void btnPrev_Click(object sender, System.EventArgs e)
+    {
+        // Set viewstate variable to the previous page
+        if (CurrentPage > 0)
+            CurrentPage -= 1;
+        else
+            CurrentPage = 1;
+        // Reload control
+        //BindPagedDataSource();
+    }
+    #endregion
+
+    protected void DropDownSize_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        var id = int.Parse(((DropDownList)GridView1.Controls[0].FindControl("DropDownSize")).SelectedValue);
+        // update the price depending on the size selected from the drop down list
+        txtSizePrice.Text = GetPrice(id);
+    }
+
+    /// <summary>
+    /// Updates the product price according to the size selected
+    /// </summary>
+    /// <param name="sizeId"></param>
+    /// <returns></returns>
+    protected string GetPrice(int sizeId)
+    {
+        string outcomeMessage;
+        try
+        {
+            decimal returnValue;
+            using (var sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                using (var sqlCommand = new SqlCommand("Product_Attributes_Prices", sqlConnection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlConnection.Open();
+
+                    sqlCommand.Parameters.Clear();
+                    sqlCommand.Parameters.AddWithValue("@Id", sizeId);
+
+                    returnValue = (decimal)sqlCommand.ExecuteScalar();
+
+                    sqlConnection.Close();
+                }
+            }
+            return returnValue.ToString("#0.00");
+        }
+        catch (Exception ex)
+        {
+            outcomeMessage = "<b>Error occured while updating." + ex.StackTrace + " + </b>";
+        }
+
+        return outcomeMessage;
+    }
+
+    private void StartUpLoad()
+    {
+        //get the file name of the posted image
+        string imgName = ((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).FileName; //uploadPicture.FileName;
+
+        //get the size in bytes that
+        int imgSize = ((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).PostedFile.ContentLength; //uploadPicture.PostedFile.ContentLength;
+
+        //validates the posted file before saving
+        if (((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).PostedFile != null && ((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).FileName != "")
+        {
+            //if (FileUpload1.PostedFile != null && FileUpload1.PostedFile.FileName != "") {
+            // 10240 KB means 10MB, You can change the value based on your requirement
+            if (((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).PostedFile.ContentLength > 20240)
+            {
+                //if 
+                //FilenameDetails.InnerHtml = "File is too big";
+                //message.Text
+                Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('File is too big.')", true);
+
+            }
+            else
+            {
+
+                //For live
+                string imagePath = Server.MapPath("~/ProductImages/");
+                imagePath = imagePath + @"\" + imgName;
+
+                //For testing
+                //string imagePath = ConfigurationManager.AppSettings["UploadPath"] + imgName;
+
+                //then save it to the Folder
+                ((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).SaveAs(imagePath);
+
+                ImageResizeUtils.ResizeImage(imagePath, 300, 300);
+                Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('Image saved!')", true);
+                //ProductImages/imgName
+                ((HiddenField)GridView1.Controls[0].FindControl("hfImageURL")).Value = "ProductImages/" + imgName;
+            }
+        }
+
     }
 
     //private void BindRepeater()
@@ -283,29 +428,10 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
     //    }
     //}
 
-    public void btnNext_Click(object sender, System.EventArgs e)
-    {
-        // Set viewstate variable to the next page
-        CurrentPage += 1;
-        // Reload control
-        //BindPagedDataSource();
-    }
-
-    public void btnPrev_Click(object sender, System.EventArgs e)
-    {
-        // Set viewstate variable to the previous page
-        if (CurrentPage > 0)
-            CurrentPage -= 1;
-        else
-            CurrentPage = 1;
-        // Reload control
-        //BindPagedDataSource();
-    }
-
     protected void OnEdit(object sender, EventArgs e)
     {
         //Find the reference of the Repeater Item.
-        RepeaterItem item = (sender as LinkButton).Parent as RepeaterItem;
+        var item = (sender as LinkButton).Parent as RepeaterItem;
         this.ToggleElements(item, true);
     }
 

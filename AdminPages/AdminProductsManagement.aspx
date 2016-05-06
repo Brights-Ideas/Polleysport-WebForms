@@ -69,7 +69,7 @@
         </div>
         <asp:UpdatePanel ID="upEdit" runat="server">
             <ContentTemplate>
-                <div class="modal-body">
+              <%--  <div class="modal-body">
                     <table class="table">
                         <tr>
                             <td>Country Code : 
@@ -97,6 +97,60 @@
                             </td>
                         </tr>
                     </table>
+                </div>--%>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <asp:Label ID="lblprodTitle" AssociatedControlID="txtprodTitle" runat="server" Text="Product Title" />
+                        <asp:TextBox ID="txtprodTitle" CssClass="form-control" runat="server" Text='<%#Bind("ProductName")%>' />
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="prodDesc" runat="server" Text="Description"></asp:Label>
+                        <asp:TextBox ID="txtXtext" TextMode="MultiLine" CssClass="form-control" runat="server" Text='<%#Bind("ProductDescription")%>' />
+                        <asp:RegularExpressionValidator ID="regexDescriptionValid" runat="server" ControlToValidate="txtXtext"
+                            ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="/?\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="prodStock" runat="server" Text="Stock Level"></asp:Label>
+                        <asp:TextBox ID="txtStock" CssClass="form-control" runat="server" Text='<%#Bind("in_stock") %>' />
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="prodPrice" runat="server" Text="Polleysport Price £"></asp:Label>
+                        <asp:TextBox ID="txtPrice" CssClass="form-control" runat="server" Text='<%#Bind("ProductPrice", "{0:##0.00}") %>' />
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="prodShip" runat="server" Text="Shipping £"></asp:Label>
+                        <asp:TextBox ID="txtSHP" CssClass="form-control" runat="server" Text='<%#Bind("ShippingCost", "{0:##0.00}") %>' />
+                    </div>
+                    <div class="form-group">
+                        <img alt="Upload Image" id="prodImage" src="../Content/Images/uploadphoto.png" />
+                        <asp:FileUpload ID="uploadPicture" CssClass="form-control" runat="server" />
+                        <asp:HiddenField ID="hfImageURL" runat="server" Value='<%#Bind("ProductImageUrl") %>' />
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="lblCats" runat="server" Text="Categories" />
+                        <!-- loop through cats -->
+                        <asp:DropDownList ID="ddCatId" CssClass="form-control" runat="server" DataSourceID="remCats" DataTextField="name"
+                            DataValueField="CategoryID" SelectedValue='<%#Bind("CategoryID") %>' />
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="lblSize" runat="server" Text="Sizes" />
+                        <asp:HiddenField ID="hdn_prod" Value='<%# Eval("ProductID") %>' runat="server" />
+                        <!-- loop through sizes -->
+                        <asp:DropDownList ID="DropDownSize" CssClass="form-control" runat="server" DataSourceID="DropDownSizeData"
+                            AutoPostBack="true" DataTextField="attribute_value" DataValueField="Id" OnSelectedIndexChanged="DropDownSize_SelectedIndexChanged" />
+                    </div>
+                    <div class="form-group">
+                        <asp:Label ID="lblSizePrice" runat="server" Text="Size Price" />
+                        <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                            <ContentTemplate>
+                                <asp:TextBox ID="txtSizePrice" runat="server" CssClass="price" Text='<%#Bind("Price", "{0:##0.00}")  %>' />
+                            </ContentTemplate>
+                            <Triggers>
+                                <asp:AsyncPostBackTrigger ControlID="DropDownSize" />
+                            </Triggers>
+                        </asp:UpdatePanel>
+
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <asp:Label ID="lblResult" Visible="false" runat="server"></asp:Label>
@@ -196,4 +250,12 @@
         </asp:UpdatePanel>
     </div>
     <!--Delete Record Modal Ends here -->
+    <asp:SqlDataSource ID="DropDownSizeData" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
+        SelectCommand="SELECT Id, attribute_value FROM Product_Attributes WHERE (Product_Id = @ProductID)">
+        <SelectParameters>
+            <asp:QueryStringParameter Name="ProductID" QueryStringField="ProductID" Type="Int32" />
+        </SelectParameters>
+    </asp:SqlDataSource>
+    <asp:SqlDataSource ID="remCats" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
+        SelectCommand="SELECT [name], [categoryID] FROM [Category]" />
 </asp:Content>
