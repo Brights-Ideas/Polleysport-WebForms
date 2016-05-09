@@ -15,11 +15,13 @@
     
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
+    <script src="../Scripts/jquery-1.10.2.min.js"></script>
+    <script src="../Scripts/bootstrap.js"></script> 
 </head>
 <body>
 
     <!-- header -->
-    <form id="form1" runat="server">
+    <form id="form1" class="form-horizontal" runat="server">
         <!-- top menu -->
        
         <!-- header ends-->
