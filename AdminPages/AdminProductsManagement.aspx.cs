@@ -55,9 +55,9 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         int index = Convert.ToInt32(e.CommandArgument);
         if (e.CommandName.Equals("detail"))
         {
-            string code = GridView1.DataKeys[index].Value.ToString();
+            int code = Convert.ToInt32(GridView1.DataKeys[index].Value);//.ToString();
             IEnumerable<DataRow> query = from i in dt.AsEnumerable()
-                                         where i.Field<String>("Code").Equals(code)
+                                         where i.Field<Int32>("ProductID").Equals(code)
                                          select i;
             DataTable detailTable = query.CopyToDataTable<DataRow>();
             DetailsView1.DataSource = detailTable;

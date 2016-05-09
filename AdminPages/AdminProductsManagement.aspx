@@ -39,7 +39,9 @@
             </Triggers>
         </asp:UpdatePanel>
         <!-- Detail Modal Starts here-->
-        <div id="detailModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div id="detailModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 <h3 id="myModalLabel">Detailed View</h3>
@@ -49,11 +51,11 @@
                     <ContentTemplate>
                         <asp:DetailsView ID="DetailsView1" runat="server" CssClass="table table-bordered table-hover" BackColor="White" ForeColor="Black" FieldHeaderStyle-Wrap="false" FieldHeaderStyle-Font-Bold="true" FieldHeaderStyle-BackColor="LavenderBlush" FieldHeaderStyle-ForeColor="Black" BorderStyle="Groove" AutoGenerateRows="False">
                             <Fields>
-                                <asp:BoundField DataField="Code" HeaderText="Code" />
-                                <asp:BoundField DataField="Name" HeaderText="Name" />
-                                <asp:BoundField DataField="Continent" HeaderText="Continent" />
-                                <asp:BoundField DataField="Population" HeaderText="Population" />
-                                <asp:BoundField DataField="IndepYear" HeaderText="Independence Year" />
+                                <asp:BoundField DataField="ProductID" HeaderText="Code" />
+                                <asp:BoundField DataField="ProductName" HeaderText="Name" />
+                                <asp:BoundField DataField="ProductDescription" HeaderText="Continent" />
+                                <asp:BoundField DataField="in_stock" HeaderText="Population" />
+                                <asp:BoundField DataField="ProductPrice" HeaderText="Independence Year" />
                             </Fields>
                         </asp:DetailsView>
                     </ContentTemplate>
@@ -65,6 +67,8 @@
                 <div class="modal-footer">
                     <button class="btn btn-info" data-dismiss="modal" aria-hidden="true">Close</button>
                 </div>
+            </div>
+            </div>
             </div>
         </div>
         <!-- Detail Modal Ends here -->
