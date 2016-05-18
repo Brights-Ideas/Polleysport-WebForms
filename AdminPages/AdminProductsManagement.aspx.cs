@@ -37,6 +37,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             DataSet ds = new DataSet();
             dAdapter.Fill(ds);
             dt = ds.Tables[0];
+
             //Bind the fetched data to gridview
             GridView1.DataSource = dt;
             GridView1.DataBind();
@@ -55,9 +56,9 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         int index = Convert.ToInt32(e.CommandArgument);
         if (e.CommandName.Equals("detail"))
         {
-            int code = Convert.ToInt32(GridView1.DataKeys[index].Value);//.ToString();
+            int productId = Convert.ToInt32(GridView1.DataKeys[index].Value);//.ToString();
             IEnumerable<DataRow> query = from i in dt.AsEnumerable()
-                                         where i.Field<Int32>("ProductID").Equals(code)
+                                         where i.Field<Int32>("ProductID").Equals(productId)
                                          select i;
             DataTable detailTable = query.CopyToDataTable<DataRow>();
             DetailsView1.DataSource = detailTable;
@@ -72,10 +73,14 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         {
             GridViewRow gvrow = GridView1.Rows[index];
             //lblCountryCode.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
-            txtprodTitle.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
+            lblProductID.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
+            txtprodTitle.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text).ToString();
             //txtPopulation.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
-            txtXtext.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
-            txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
+            txtXtext.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
+            txtStock.Text = HttpUtility.HtmlDecode(gvrow.Cells[6].Text);
+            txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
+            hfImageURL.Value = HttpUtility.HtmlDecode(gvrow.Cells[8].Text);
+            ddCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[9].Text);
             lblResult.Visible = false;
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
@@ -100,11 +105,25 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     protected void btnSave_Click(object sender, EventArgs e)
     {
-        string code = txtprodTitle.Text;
-        int population = Convert.ToInt32( 1);
-        string countryname = txtXtext.Text;
-        string continent = txtPrice.Text;
-        executeUpdate(code, population, countryname, continent);
+        int productId = Convert.ToInt32(lblProductID.Text);
+        string productName = txtprodTitle.Text;
+        //int population = Convert.ToInt32( 1);
+        string description = txtXtext.Text;
+        int stock = Convert.ToInt32(txtStock.Text);
+        decimal price = Convert.ToDecimal(txtPrice.Text);
+        string imageUrl = hfImageURL.Value;
+        int categoryId = 1; //ddCatId.SelectedValue;
+        //@Name txtprodTitle.Text;
+	    //@Description varchar(500),
+	    //@Stock int,
+	    //@Price money,
+	    //@Shipping money,
+	    //@ImageURL varchar(500),
+	    //@CatId int,
+	    //@ProductID int,
+	    //@SizePrice money,
+	    //@Id int
+        executeUpdate(productName, description, stock, price, imageUrl, categoryId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
@@ -115,19 +134,26 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     }
 
-    private void executeUpdate(string code, int population, string countryname, string continent)
+    private void executeUpdate(string productName, string description, int stock, decimal price, string imageUrl, int categoryId)
     {
         string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            string updatecmd = "update tblCountry set Population=@population, Name=@countryname,Continent=@continent where Code=@code";
+            //string updatecmd = "update Products set Population=@population, Name=@countryname,Continent=@continent where Code=@code";
+            string updatecmd = "UPDATE Products SET ProductName = @Name, ProductDescription = @Description, in_stock = @Stock, ProductPrice = @Price, ProductImageUrl = @ImageURL, categoryID = @CatId WHERE ProductID = @ProductID";
             SqlCommand updateCmd = new SqlCommand(updatecmd, conn);
-            updateCmd.Parameters.AddWithValue("@population", population);
-            updateCmd.Parameters.AddWithValue("@countryname", countryname);
-            updateCmd.Parameters.AddWithValue("@continent", continent);
-            updateCmd.Parameters.AddWithValue("@code", code);
+            updateCmd.Parameters.AddWithValue("@Name", productName);
+	        updateCmd.Parameters.AddWithValue("@Description", description);
+	        updateCmd.Parameters.AddWithValue("@Stock", stock);
+	        updateCmd.Parameters.AddWithValue("@Price", price );
+	        //updateCmd.Parameters.AddWithValue("@Shipping money,
+	        updateCmd.Parameters.AddWithValue("@ImageURL", imageUrl);
+            updateCmd.Parameters.AddWithValue("@CatId", categoryId);
+	        //@ProductID int,
+	
+	        //@SizePrice money,
             updateCmd.ExecuteNonQuery();
             conn.Close();
 
