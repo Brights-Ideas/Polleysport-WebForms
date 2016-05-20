@@ -15,6 +15,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        //Page.Form.Attributes.Add("enctype", "multipart/form-data");
         //if (!this.IsPostBack)
         //{
         //    CurrentPage = 0;
@@ -61,8 +62,8 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
                                          where i.Field<Int32>("ProductID").Equals(productId)
                                          select i;
             DataTable detailTable = query.CopyToDataTable<DataRow>();
-            DetailsView1.DataSource = detailTable;
-            DetailsView1.DataBind();
+            //DetailsView1.DataSource = detailTable;
+            //DetailsView1.DataBind();
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
             sb.Append("$('#detailModal').modal('show');");
@@ -73,14 +74,14 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         {
             GridViewRow gvrow = GridView1.Rows[index];
             //lblCountryCode.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
-            lblProductID.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
-            txtprodTitle.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text).ToString();
+            lblProductID.Text = HttpUtility.HtmlDecode(gvrow.Cells[2].Text).ToString();
+            txtprodTitle.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
             //txtPopulation.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
-            txtXtext.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
-            txtStock.Text = HttpUtility.HtmlDecode(gvrow.Cells[6].Text);
-            txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
-            hfImageURL.Value = HttpUtility.HtmlDecode(gvrow.Cells[8].Text);
-            ddCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[9].Text);
+            txtXtext.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
+            txtStock.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
+            txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[6].Text);
+            hfImageURL.Value = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
+            ddCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[8].Text);
             lblResult.Visible = false;
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
@@ -102,7 +103,6 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     }
 
-
     protected void btnSave_Click(object sender, EventArgs e)
     {
         int productId = Convert.ToInt32(lblProductID.Text);
@@ -111,18 +111,13 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         string description = txtXtext.Text;
         int stock = Convert.ToInt32(txtStock.Text);
         decimal price = Convert.ToDecimal(txtPrice.Text);
+        if (fileUploadImage.HasFile)
+        {
+            StartUpLoad();
+        }
         string imageUrl = hfImageURL.Value;
-        int categoryId = 1; //ddCatId.SelectedValue;
-        //@Name txtprodTitle.Text;
-	    //@Description varchar(500),
-	    //@Stock int,
-	    //@Price money,
-	    //@Shipping money,
-	    //@ImageURL varchar(500),
-	    //@CatId int,
-	    //@ProductID int,
-	    //@SizePrice money,
-	    //@Id int
+        int categoryId = Convert.ToInt32(ddCatId.SelectedValue);
+	    
         executeUpdate(productName, description, stock, price, imageUrl, categoryId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -136,7 +131,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     private void executeUpdate(string productName, string description, int stock, decimal price, string imageUrl, int categoryId)
     {
-        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
@@ -151,9 +146,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 	        //updateCmd.Parameters.AddWithValue("@Shipping money,
 	        updateCmd.Parameters.AddWithValue("@ImageURL", imageUrl);
             updateCmd.Parameters.AddWithValue("@CatId", categoryId);
-	        //@ProductID int,
-	
-	        //@SizePrice money,
+	        
             updateCmd.ExecuteNonQuery();
             conn.Close();
 
@@ -176,13 +169,19 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     protected void btnAddRecord_Click(object sender, EventArgs e)
     {
-        string code = txtCode.Text;
-        string name = txtCountryName.Text;
-        string region = txtRegion.Text;
-        string continent = txtContinent.Text;
-        int population = Convert.ToInt32(txtTotalPopulation.Text);
-        int indyear = Convert.ToInt32(txtIndYear.Text);
-        executeAdd(code, name, continent, region, population, indyear);
+        string productName = txtProductName.Text;
+        string description = txtDescription.Text;
+        decimal price = Convert.ToDecimal(txtProductPrice.Text);
+        int stock = Convert.ToInt32(txtProductStock.Text);
+        if(insertUploadPicture.HasFile)
+        {
+            
+        }
+        //StartUpLoad();
+        string imageUrl = insertUploadPicture.FileName;// StartUpLoad(insertUploadPicture);
+        int categoryId = Convert.ToInt32(Category.SelectedValue);
+        
+        executeAdd(productName, description, price, stock, imageUrl, categoryId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
@@ -194,21 +193,30 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     }
 
-    private void executeAdd(string code, string name, string continent, string region, int population, int indyear)
+    private void executeAdd(string productName, string description, decimal price, int stock, string imageUrl, int categoryId)
     {
-        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            string updatecmd = "insert into tblCountry (Code,Name,Continent,Region,Population,IndepYear) values (@code,@name,@continent,@region,@population,@indyear)";
+            //string updatecmd = "insert into tblCountry (Code,Name,Continent,Region,Population,IndepYear) values (@code,@name,@continent,@region,@population,@indyear)";
+
+            string updatecmd = "INSERT INTO Products (ProductName,ProductDescription,ProductPrice,ProductImageURL,in_stock,categoryID,[enabled]) VALUES (@ProductName, @ProductDescription,@ProductPrice,@ProductImageURL,@in_stock,@CategoryID,1 )";
             SqlCommand addCmd = new SqlCommand(updatecmd, conn);
-            addCmd.Parameters.AddWithValue("@code", code);
-            addCmd.Parameters.AddWithValue("@name", name);
-            addCmd.Parameters.AddWithValue("@continent", continent);
-            addCmd.Parameters.AddWithValue("@region", region);
-            addCmd.Parameters.AddWithValue("@population", population);
-            addCmd.Parameters.AddWithValue("@indyear", indyear);
+            //addCmd.Parameters.AddWithValue("@code", code);
+            //addCmd.Parameters.AddWithValue("@name", name);
+            //addCmd.Parameters.AddWithValue("@continent", continent);
+            //addCmd.Parameters.AddWithValue("@region", region);
+            //addCmd.Parameters.AddWithValue("@population", population);
+            //addCmd.Parameters.AddWithValue("@indyear", indyear);
+            addCmd.Parameters.AddWithValue("@ProductName", productName);
+            addCmd.Parameters.AddWithValue("@ProductDescription", description);
+            addCmd.Parameters.AddWithValue("@ProductPrice", price);
+            //addCmd.Parameters.AddWithValue("@ShippingCost money,
+            addCmd.Parameters.AddWithValue("@in_stock", stock);
+            addCmd.Parameters.AddWithValue("@ProductImageURL", imageUrl);
+            addCmd.Parameters.AddWithValue("@CategoryID", categoryId);
             addCmd.ExecuteNonQuery();
             conn.Close();
 
@@ -236,7 +244,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     private void executeDelete(string code)
     {
-        string connString = ConfigurationManager.ConnectionStrings["MySqlConnString"].ConnectionString;
+        string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
@@ -254,249 +262,6 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         }
 
     }
-    //public void BindGrid()
-    //{
-    //    try
-    //    {
-    //        //Fetch data from mysql database
-    //        var connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-    //        var conn = new SqlConnection(connString);
-    //        conn.Open();
-    //        const string cmd = "select * from Products";
-    //        var dAdapter = new SqlDataAdapter(cmd, conn);
-    //        var ds = new DataSet();
-    //        dAdapter.Fill(ds);
-    //        dt = ds.Tables[0];
-    //        //Bind the fetched data to gridview
-    //        GridView1.DataSource = dt;
-    //        GridView1.DataBind();
-
-    //    }
-    //    catch (SqlException ex)
-    //    {
-    //        Console.Error.Write(ex.Message);
-
-    //    }
-
-    //}
-
-    //protected void GridView1_RowCommand(object sender, GridViewCommandEventArgs e)
-    //{
-    //    int index = Convert.ToInt32(e.CommandArgument);
-    //    if (e.CommandName.Equals("detail"))
-    //    {
-    //        //string code = GridView1.DataKeys[index].Value.ToString();
-    //        string productID = GridView1.DataKeys[index].Value.ToString();
-    //        IEnumerable<DataRow> query = from i in dt.AsEnumerable()
-    //                                     where i.Field<String>("ProductID").Equals(productID)
-    //                                     select i;
-    //        DataTable detailTable = query.CopyToDataTable<DataRow>();
-    //        DetailsView1.DataSource = detailTable;
-    //        DetailsView1.DataBind();
-    //        var sb = new System.Text.StringBuilder();
-    //        sb.Append(@"<script type='text/javascript'>");
-    //        sb.Append("$('#detailModal').modal('show');");
-    //        sb.Append(@"</script>");
-    //        ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "DetailModalScript", sb.ToString(), false);
-    //    }
-    //    else if (e.CommandName.Equals("editRecord"))
-    //    {
-    //        GridViewRow gvrow = GridView1.Rows[index];
-    //        //lblCountryCode.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
-    //        txtprodTitle.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
-    //        //txtPopulation.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
-    //        txtXtext.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
-    //        txtStock.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
-    //        txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
-    //        lblResult.Visible = false;
-    //        var sb = new System.Text.StringBuilder();
-    //        sb.Append(@"<script type='text/javascript'>");
-    //        sb.Append("$('#editModal').modal('show');");
-    //        sb.Append(@"</script>");
-    //        ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "EditModalScript", sb.ToString(), false);
-
-    //    }
-    //    else if (e.CommandName.Equals("deleteRecord"))
-    //    {
-    //        string productID = GridView1.DataKeys[index].Value.ToString();
-    //        //hfCode.Value = code;
-    //        hdn_prod.Value = productID;
-    //        var sb = new System.Text.StringBuilder();
-    //        sb.Append(@"<script type='text/javascript'>");
-    //        sb.Append("$('#deleteModal').modal('show');");
-    //        sb.Append(@"</script>");
-    //        ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "DeleteModalScript", sb.ToString(), false);
-    //    }
-
-    //}
-
-    //protected void btnSave_Click(object sender, EventArgs e)
-    //{
-    //    //string code = lblCountryCode.Text;
-    //    //int population = Convert.ToInt32(txtPopulation.Text);
-    //    //string countryname = txtName.Text;
-    //    //string continent = txtContinent1.Text;
-
-    //    string Name = txtprodTitle.Text;
-    //    string Description = txtXtext.Text;
-    //    int Stock = Convert.ToInt32(txtStock.Text);
-    //    decimal Price = Convert.ToDecimal(txtPrice.Text);
-    //    decimal Shipping = Convert.ToDecimal(txtSHP.Text);
-    //    string ImageUrl = hfImageURL.Value;
-    //    int CategoryID = Convert.ToInt32(ddCatId.SelectedValue);
-    //    decimal SizePrice = Convert.ToDecimal(txtSizePrice.Text);
-
-    //    int ProductID = Convert.ToInt32(hdn_prod.Value);
-        
-    //    executeUpdate(ProductID, Name, Description, Stock, Price, Shipping, ImageUrl, CategoryID, SizePrice);
-    //    BindGrid();
-    //    var sb = new System.Text.StringBuilder();
-    //    sb.Append(@"<script type='text/javascript'>");
-    //    sb.Append("alert('Records Updated Successfully');");
-    //    sb.Append("$('#editModal').modal('hide');");
-    //    sb.Append(@"</script>");
-    //    ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "EditHideModalScript", sb.ToString(), false);
-
-    //}
-
-    //private void executeUpdate(int ProductID, string Name, string Description, int Stock, decimal Price, decimal Shipping, string ImageUrl, int CategoryID, decimal SizePrice)
-    //{
-    //    string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-    //    try
-    //    {
-    //        var conn = new SqlConnection(connString);
-    //        conn.Open();
-    //        string updatecmd = "UPDATE Products SET ProductName=@Name, " +
-    //                           "ProductDescription=@Description," +
-    //                           "in_stock=@Stock," +
-    //                           "ProductPrice=@Price," +
-    //                           "ShippingCost=@Shipping," +
-    //                           "ProductImageUrl=@ImageURL," +
-    //                           "categoryID=@CatId" +
-    //                           "WHERE ProductID=@ProductID";
-    //        var updateCmd = new SqlCommand(updatecmd, conn);
-    //        updateCmd.Parameters.AddWithValue("@Name", Name);
-    //        updateCmd.Parameters.AddWithValue("@Description", Description);
-    //        updateCmd.Parameters.AddWithValue("@Stock", Stock);
-    //        updateCmd.Parameters.AddWithValue("@Price", Price);
-    //        updateCmd.Parameters.AddWithValue("@Shipping", Shipping);
-    //        updateCmd.Parameters.AddWithValue("@ImageURL", ImageUrl);
-    //        updateCmd.Parameters.AddWithValue("@CatId", CategoryID);
-    //        updateCmd.Parameters.AddWithValue("@ProductID", ProductID);
-
-    //        updateCmd.Parameters.AddWithValue("@SizePrice", SizePrice);
-    //        //updateCmd.Parameters.AddWithValue("@Id", int
-    //        //updateCmd.Parameters.AddWithValue("@population", population);
-    //        //updateCmd.Parameters.AddWithValue("@countryname", countryname);
-    //        //updateCmd.Parameters.AddWithValue("@continent", continent);
-    //        //updateCmd.Parameters.AddWithValue("@ProductID", ProductID);
-    //        updateCmd.ExecuteNonQuery();
-    //        conn.Close();
-
-    //    }
-    //    catch (SqlException me)
-    //    {
-    //        Console.Error.Write(me.InnerException.Data);
-    //    }
-    //}
-
-    //protected void btnAdd_Click(object sender, EventArgs e)
-    //{
-    //    var sb = new System.Text.StringBuilder();
-    //    sb.Append(@"<script type='text/javascript'>");
-    //    sb.Append("$('#addModal').modal('show');");
-    //    sb.Append(@"</script>");
-    //    ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "AddShowModalScript", sb.ToString(), false);
-
-    //}
-
-    //protected void btnAddRecord_Click(object sender, EventArgs e)
-    //{
-    //    //string code = txtCode.Text;
-    //    string Name = txtprodTitle.Text;
-    //    string description = txtXtext.Text;
-    //    decimal price = Convert.ToDecimal(txtPrice.Text);
-    //    decimal shipping = Convert.ToDecimal(txtSHP.Text);
-    //    int stock = Convert.ToInt32(txtStock.Text);
-    //    string imageUrl = hfImageURL.Value;
-    //    int categoryID = 1;
-    //    //string continent = txtContinent.Text;
-    //    //int population = Convert.ToInt32(txtTotalPopulation.Text);
-    //    //int indyear = Convert.ToInt32(txtIndYear.Text);
-    //    executeAdd(Name, description, price, shipping, stock, imageUrl, categoryID);
-    //    BindGrid();
-    //    var sb = new System.Text.StringBuilder();
-    //    sb.Append(@"<script type='text/javascript'>");
-    //    sb.Append("alert('Record Added Successfully');");
-    //    sb.Append("$('#addModal').modal('hide');");
-    //    sb.Append(@"</script>");
-    //    ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "AddHideModalScript", sb.ToString(), false);
-
-
-    //}
-
-    //private void executeAdd(string Name, string description, decimal price, decimal shipping, int stock, string imageUrl, int categoryID)
-    //{
-    //    string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-    //    try
-    //    {
-    //        SqlConnection conn = new SqlConnection(connString);
-    //        conn.Open();
-    //        string updatecmd = "insert into Products (ProductName,ProductDescription,Price,Population,IndepYear) " +
-    //                           "values " +
-    //                           "(@Name,@Description,@Price,@population,@indyear)";
-    //        SqlCommand addCmd = new SqlCommand(updatecmd, conn);
-    //        //addCmd.Parameters.AddWithValue("@code", code);
-    //        addCmd.Parameters.AddWithValue("@Name", Name);
-    //        addCmd.Parameters.AddWithValue("@Description", description);
-    //        addCmd.Parameters.AddWithValue("@Price", price);
-    //        addCmd.Parameters.AddWithValue("@ProductImageURL", imageUrl);
-    //        addCmd.Parameters.AddWithValue("@in_stock", stock);
-    //        addCmd.ExecuteNonQuery();
-    //        conn.Close();
-
-    //    }
-    //    catch (SqlException me)
-    //    {
-    //        Console.Write(me.Message);
-    //    }
-    //}
-
-    //protected void btnDelete_Click(object sender, EventArgs e)
-    //{
-    //    string code = hfCode.Value;
-    //    executeDelete(code);
-    //    BindGrid();
-    //    var sb = new System.Text.StringBuilder();
-    //    sb.Append(@"<script type='text/javascript'>");
-    //    sb.Append("alert('Record deleted Successfully');");
-    //    sb.Append("$('#deleteModal').modal('hide');");
-    //    sb.Append(@"</script>");
-    //    ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "delHideModalScript", sb.ToString(), false);
-
-
-    //}
-
-    //private void executeDelete(string code)
-    //{
-    //    string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-    //    try
-    //    {
-    //        SqlConnection conn = new SqlConnection(connString);
-    //        conn.Open();
-    //        string updatecmd = "delete from tblCountry where Code=@code";
-    //        SqlCommand addCmd = new SqlCommand(updatecmd, conn);
-    //        addCmd.Parameters.AddWithValue("@code", code);
-    //        addCmd.ExecuteNonQuery();
-    //        conn.Close();
-
-    //    }
-    //    catch (SqlException me)
-    //    {
-    //        System.Console.Write(me.Message);
-    //    }
-
-    //}
 
     #endregion
 
@@ -580,27 +345,26 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
     private void StartUpLoad()
     {
         //get the file name of the posted image
-        string imgName = ((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).FileName; //uploadPicture.FileName;
+        string imgName = ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).FileName;
+        //string imgName = insertUploadPicture.FileName;
 
         //get the size in bytes that
-        int imgSize = ((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).PostedFile.ContentLength; //uploadPicture.PostedFile.ContentLength;
+        int imgSize = ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile.ContentLength;
+        //int imgSize = insertUploadPicture.PostedFile.ContentLength;
 
         //validates the posted file before saving
-        if (((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).PostedFile != null && ((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).FileName != "")
+        if (((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile != null && ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).FileName != "")
+        //if (insertUploadPicture.PostedFile != null && insertUploadPicture.FileName != "")
         {
-            //if (FileUpload1.PostedFile != null && FileUpload1.PostedFile.FileName != "") {
             // 10240 KB means 10MB, You can change the value based on your requirement
-            if (((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).PostedFile.ContentLength > 20240)
+            if (((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile.ContentLength > 20240)
+            //if (insertUploadPicture.PostedFile.ContentLength > 20240)
             {
-                //if 
-                //FilenameDetails.InnerHtml = "File is too big";
-                //message.Text
                 Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('File is too big.')", true);
 
             }
             else
             {
-
                 //For live
                 string imagePath = Server.MapPath("~/ProductImages/");
                 imagePath = imagePath + @"\" + imgName;
@@ -609,7 +373,8 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
                 //string imagePath = ConfigurationManager.AppSettings["UploadPath"] + imgName;
 
                 //then save it to the Folder
-                ((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).SaveAs(imagePath);
+                //((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).SaveAs(imagePath);
+                insertUploadPicture.SaveAs(imagePath);
 
                 ImageResizeUtils.ResizeImage(imagePath, 300, 300);
                 Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('Image saved!')", true);
@@ -617,7 +382,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
                 ((HiddenField)GridView1.Controls[0].FindControl("hfImageURL")).Value = "ProductImages/" + imgName;
             }
         }
-
+        //return "ProductImages/" + imgName;
     }
 
     //private void BindRepeater()

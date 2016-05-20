@@ -21,7 +21,7 @@
 <body>
 
     <!-- header -->
-    <form id="form1" class="form-horizontal" runat="server">
+    <form id="form1" role="form" enctype="multipart/form-data" class="form-horizontal" runat="server">
         <!-- top menu -->
        
         <!-- header ends-->
