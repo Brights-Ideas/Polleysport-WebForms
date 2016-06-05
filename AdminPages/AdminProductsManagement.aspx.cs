@@ -15,12 +15,11 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        //Page.Form.Attributes.Add("enctype", "multipart/form-data");
-        //if (!this.IsPostBack)
-        //{
-        //    CurrentPage = 0;
-        //}
-        //BindPagedDataSource();
+        if (!this.IsPostBack)
+        {
+            CurrentPage = 0;
+        }
+
         BindGrid();
     }
 
@@ -33,7 +32,8 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            string cmd = "select * from products";
+            //string cmd = "SELECT TOP 3 * FROM Products ORDER BY productID DESC";
+            string cmd = "SELECT Products.ProductID, Products.ProductName, Products.ProductDescription, Products.in_stock, Products.ProductPrice, Products.ProductImageUrl, Products.CategoryID, SubCategory.SubCategoryID, Products.enabled FROM Products LEFT JOIN SubCategory ON Products.CategoryID = SubCategory.SubCategoryId ORDER BY Products.productID DESC";
             SqlDataAdapter dAdapter = new SqlDataAdapter(cmd, conn);
             DataSet ds = new DataSet();
             dAdapter.Fill(ds);
@@ -50,6 +50,13 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
         }
 
+    }
+
+    protected void btnSearch_Click(object sender, EventArgs e)
+    {
+        dt.DefaultView.RowFilter = string.Format("ProductName LIKE '{0}'", txtSearch.Text);
+        GridView1.DataBind();
+        //BindGrid();
     }
 
     protected void GridView1_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -82,6 +89,8 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[6].Text);
             hfImageURL.Value = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
             ddCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[8].Text);
+            ddSubCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[9].Text);
+            rblProductActive.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[10].Text);
             lblResult.Visible = false;
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
@@ -113,12 +122,13 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         decimal price = Convert.ToDecimal(txtPrice.Text);
         if (fileUploadImage.HasFile)
         {
-            StartUpLoad();
+            StartUpLoad(fileUploadImage);
         }
         string imageUrl = hfImageURL.Value;
         int categoryId = Convert.ToInt32(ddCatId.SelectedValue);
-	    
-        executeUpdate(productName, description, stock, price, imageUrl, categoryId);
+        int subCategoryId = Convert.ToInt32(ddSubCatId.SelectedValue);
+        bool enabled = Convert.ToBoolean(rblProductActive.SelectedValue);
+        executeUpdate(productName, description, stock, price, imageUrl, categoryId, subCategoryId, enabled, productId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
@@ -129,7 +139,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     }
 
-    private void executeUpdate(string productName, string description, int stock, decimal price, string imageUrl, int categoryId)
+    private void executeUpdate(string productName, string description, int stock, decimal price, string imageUrl, int categoryId, int subCategoryId, bool enabled, int productId)
     {
         string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
@@ -137,7 +147,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
             //string updatecmd = "update Products set Population=@population, Name=@countryname,Continent=@continent where Code=@code";
-            string updatecmd = "UPDATE Products SET ProductName = @Name, ProductDescription = @Description, in_stock = @Stock, ProductPrice = @Price, ProductImageUrl = @ImageURL, categoryID = @CatId WHERE ProductID = @ProductID";
+            string updatecmd = "UPDATE Products SET ProductName = @Name, ProductDescription = @Description, in_stock = @Stock, ProductPrice = @Price, ProductImageUrl = @ImageURL, categoryID = @CatId, subCategoryID = @SubCatId WHERE ProductID = @ProductID";
             SqlCommand updateCmd = new SqlCommand(updatecmd, conn);
             updateCmd.Parameters.AddWithValue("@Name", productName);
 	        updateCmd.Parameters.AddWithValue("@Description", description);
@@ -146,6 +156,10 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 	        //updateCmd.Parameters.AddWithValue("@Shipping money,
 	        updateCmd.Parameters.AddWithValue("@ImageURL", imageUrl);
             updateCmd.Parameters.AddWithValue("@CatId", categoryId);
+            updateCmd.Parameters.AddWithValue("@SubCatId", subCategoryId);
+            updateCmd.Parameters.AddWithValue("@enabled", enabled);
+
+            updateCmd.Parameters.AddWithValue("@ProductID", productId);
 	        
             updateCmd.ExecuteNonQuery();
             conn.Close();
@@ -175,7 +189,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         int stock = Convert.ToInt32(txtProductStock.Text);
         if(insertUploadPicture.HasFile)
         {
-            
+            StartUpLoad(insertUploadPicture);
         }
         //StartUpLoad();
         string imageUrl = insertUploadPicture.FileName;// StartUpLoad(insertUploadPicture);
@@ -266,6 +280,13 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
     #endregion
 
     #region Pagination controls
+
+    protected void OnPageIndexChanging(object sender, GridViewPageEventArgs e)
+    {
+        GridView1.PageIndex = e.NewPageIndex;
+        GridView1.DataBind();
+    }
+
     public int CurrentPage
     {
         get
@@ -285,6 +306,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         CurrentPage += 1;
         // Reload control
         //BindPagedDataSource();
+        BindGrid();
     }
 
     public void btnPrev_Click(object sender, System.EventArgs e)
@@ -296,6 +318,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             CurrentPage = 1;
         // Reload control
         //BindPagedDataSource();
+        BindGrid();
     }
     #endregion
 
@@ -342,23 +365,23 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         return outcomeMessage;
     }
 
-    private void StartUpLoad()
+    private void StartUpLoad(FileUpload UploadPicture)
     {
         //get the file name of the posted image
-        string imgName = ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).FileName;
-        //string imgName = insertUploadPicture.FileName;
+        //string imgName = ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).FileName;
+        string imgName = UploadPicture.FileName;
 
         //get the size in bytes that
-        int imgSize = ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile.ContentLength;
-        //int imgSize = insertUploadPicture.PostedFile.ContentLength;
+        //int imgSize = ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile.ContentLength;
+        int imgSize = UploadPicture.PostedFile.ContentLength;
 
         //validates the posted file before saving
-        if (((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile != null && ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).FileName != "")
-        //if (insertUploadPicture.PostedFile != null && insertUploadPicture.FileName != "")
+        //if (((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile != null && ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).FileName != "")
+        if (UploadPicture.PostedFile != null && imgName != "")
         {
             // 10240 KB means 10MB, You can change the value based on your requirement
-            if (((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile.ContentLength > 20240)
-            //if (insertUploadPicture.PostedFile.ContentLength > 20240)
+            //if (((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile.ContentLength > 20240)
+            if (imgSize > 20240)
             {
                 Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('File is too big.')", true);
 
@@ -373,119 +396,17 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
                 //string imagePath = ConfigurationManager.AppSettings["UploadPath"] + imgName;
 
                 //then save it to the Folder
-                //((FileUpload)GridView1.Controls[0].FindControl("uploadPicture")).SaveAs(imagePath);
-                insertUploadPicture.SaveAs(imagePath);
+                //((FileUpload)GridView1.Controls[0].FindControl("fileUploadImage")).SaveAs(imagePath);
+                UploadPicture.SaveAs(imagePath);
 
-                ImageResizeUtils.ResizeImage(imagePath, 300, 300);
+                //ImageResizeUtils.ResizeImage(imagePath, 300, 300);
                 Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('Image saved!')", true);
                 //ProductImages/imgName
-                ((HiddenField)GridView1.Controls[0].FindControl("hfImageURL")).Value = "ProductImages/" + imgName;
+                //((HiddenField)GridView1.Controls[0].FindControl("hfImageURL")).Value = "ProductImages/" + imgName;
+                hfImageURL.Value = "ProductImages/" + imgName;
             }
         }
         //return "ProductImages/" + imgName;
     }
 
-    //private void BindRepeater()
-    //{
-    //    string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-    //    using (SqlConnection con = new SqlConnection(constr))
-    //    {
-    //        using (SqlCommand cmd = new SqlCommand("Customers_CRUD"))
-    //        {
-    //            cmd.Parameters.AddWithValue("@Action", "SELECT");
-    //            using (SqlDataAdapter sda = new SqlDataAdapter())
-    //            {
-    //                cmd.CommandType = CommandType.StoredProcedure;
-    //                cmd.Connection = con;
-    //                sda.SelectCommand = cmd;
-    //                using (DataTable dt = new DataTable())
-    //                {
-    //                    sda.Fill(dt);
-    //                    prodRepeater.DataSource = dt;
-    //                    prodRepeater.DataBind();
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-
-    //private void BindPagedDataSource()
-    //{
-    //    DataSourceSelectArguments arg = new DataSourceSelectArguments();
-    //    DataView dv = (DataView)this.prods.Select(arg);
-    //    PagedDataSource objPds = new PagedDataSource();
-    //    objPds.DataSource = dv;
-    //    objPds.AllowPaging = true;
-    //    objPds.PageSize = 5;
-    //    objPds.CurrentPageIndex = CurrentPage;
-    //    lblCurrentPage.Text = "Page " + (CurrentPage + 1).ToString() + " of "
-    //        + objPds.PageCount.ToString();
-    //    //Enable/Disable Prev and Next buttons 
-    //    btnPrev.Enabled = !objPds.IsFirstPage;
-    //    btnNext.Enabled = !objPds.IsLastPage;
-    //    prodRepeater.DataSource = objPds;
-    //    prodRepeater.DataBind();
-    //    if (objPds.PageCount > 1)
-    //    {
-    //        pnlNavigation.Visible = true;
-    //    }
-    //}
-
-    //protected void OnEdit(object sender, EventArgs e)
-    //{
-    //    //Find the reference of the Repeater Item.
-    //    var item = (sender as LinkButton).Parent as RepeaterItem;
-    //    this.ToggleElements(item, true);
-    //}
-
-    //protected void OnUpdate(object sender, EventArgs e)
-    //{
-    //    //Find the reference of the Repeater Item.
-    //    RepeaterItem item = (sender as LinkButton).Parent as RepeaterItem;
-    //    int productId = int.Parse((item.FindControl("lblProductId") as Label).Text);
-    //    string name = (item.FindControl("txtContactName") as TextBox).Text.Trim();
-    //    string country = (item.FindControl("txtCountry") as TextBox).Text.Trim();
-
-    //    string constr = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
-    //    using (SqlConnection con = new SqlConnection(constr))
-    //    {
-    //        using (SqlCommand cmd = new SqlCommand("Products_Update"))
-    //        {
-    //            cmd.CommandType = CommandType.StoredProcedure;
-    //            cmd.Parameters.AddWithValue("@Action", "UPDATE");
-    //            //cmd.Parameters.AddWithValue("@CustomerId", customerId);
-    //            cmd.Parameters.AddWithValue("@ProductID", productId);
-    //            //cmd.Parameters.AddWithValue("@ProductName" varchar(50),
-    //            //cmd.Parameters.AddWithValue("@brief_description" text,
-    //            //cmd.Parameters.AddWithValue("@ProductDescription" varchar(50),
-    //            //cmd.Parameters.AddWithValue("@ProductPrice" money,
-    //            //cmd.Parameters.AddWithValue("@ProductImageURL" varchar(MAX),
-    //            //cmd.Parameters.AddWithValue("@categoryID" int
-    //            //cmd.Parameters.AddWithValue("@Name", name);
-    //            //cmd.Parameters.AddWithValue("@Country", country);
-    //            cmd.Connection = con;
-    //            con.Open();
-    //            cmd.ExecuteNonQuery();
-    //            con.Close();
-    //        }
-    //    }
-    //    //this.BindRepeater();
-    //}
-
-    //private void ToggleElements(RepeaterItem item, bool isEdit)
-    //{
-    //    //Toggle Buttons.
-    //    item.FindControl("lnkEdit").Visible = !isEdit;
-    //    item.FindControl("lnkUpdate").Visible = isEdit;
-    //    //item.FindControl("lnkCancel").Visible = isEdit;
-    //   // item.FindControl("lnkDelete").Visible = !isEdit;
-
-    //    //Toggle Labels.
-    //    item.FindControl("lblProductName").Visible = !isEdit;
-    //    //item.FindControl("lblCountry").Visible = !isEdit;
-
-    //    //Toggle TextBoxes.
-    //    item.FindControl("txtContactName").Visible = isEdit;
-    //    //item.FindControl("txtCountry").Visible = isEdit;
-    //}
 }
