@@ -52,6 +52,7 @@
                     <li><a href="Events.aspx">Events</a></li>
                     <li><a href="Gallery.aspx">Gallery</a></li>
                     <li><a href="Contact.aspx">Contact Us</a></li>
+                    <li><a href="Blog.aspx">Blogs</a></li>
                     <li><a href="AdminPages/AdminManagement.aspx">Admin Login</a></li>
                 </ul>
             </div>
