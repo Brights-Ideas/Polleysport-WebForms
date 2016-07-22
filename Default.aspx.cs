@@ -37,20 +37,18 @@ public partial class _Default : Page
 
 
     [WebMethod]
-    //public static string GetCustomers(string searchTerm, int pageIndex)
-    public static string GetCustomers()
+    public static string GetCustomers(string searchTerm, int pageIndex)
     {
-        string query = "[Products_View_Home]";//[GetProducts_Pager]";
+        string query = "[GetProducts_Pager]";
         SqlCommand cmd = new SqlCommand(query) {CommandType = CommandType.StoredProcedure};
-        //cmd.Parameters.AddWithValue("@SearchTerm", searchTerm);
-        //cmd.Parameters.AddWithValue("@PageIndex", pageIndex);
-        //cmd.Parameters.AddWithValue("@PageSize", _pageSize);
-        //cmd.Parameters.Add("@RecordCount", SqlDbType.Int, 4).Direction = ParameterDirection.Output;
-        //return GetData(cmd, pageIndex).GetXml();
-        return GetData(cmd).GetXml();
+        cmd.Parameters.AddWithValue("@SearchTerm", searchTerm);
+        cmd.Parameters.AddWithValue("@PageIndex", pageIndex);
+        cmd.Parameters.AddWithValue("@PageSize", _pageSize);
+        cmd.Parameters.Add("@RecordCount", SqlDbType.Int, 4).Direction = ParameterDirection.Output;
+        return GetData(cmd, pageIndex).GetXml();
     }
 
-    private static DataSet GetData(SqlCommand cmd)//, int pageIndex)
+    private static DataSet GetData(SqlCommand cmd, int pageIndex)
     {
         string strConnString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         using (SqlConnection con = new SqlConnection(strConnString))
@@ -62,15 +60,15 @@ public partial class _Default : Page
                 using (DataSet ds = new DataSet())
                 {
                     sda.Fill(ds);//, "Products");
-                    //DataTable dt = new DataTable("Pager");
-                    //dt.Columns.Add("PageIndex");
-                    //dt.Columns.Add("PageSize");
-                    //dt.Columns.Add("RecordCount");
-                    //dt.Rows.Add();
-                    //dt.Rows[0]["PageIndex"] = pageIndex;
-                    //dt.Rows[0]["PageSize"] = _pageSize;
-                    //dt.Rows[0]["RecordCount"] = cmd.Parameters["@RecordCount"].Value;
-                    //ds.Tables.Add(dt);
+                    DataTable dt = new DataTable("Pager");
+                    dt.Columns.Add("PageIndex");
+                    dt.Columns.Add("PageSize");
+                    dt.Columns.Add("RecordCount");
+                    dt.Rows.Add();
+                    dt.Rows[0]["PageIndex"] = pageIndex;
+                    dt.Rows[0]["PageSize"] = _pageSize;
+                    dt.Rows[0]["RecordCount"] = cmd.Parameters["@RecordCount"].Value;
+                    ds.Tables.Add(dt);
                     return ds;
                 }
             }
