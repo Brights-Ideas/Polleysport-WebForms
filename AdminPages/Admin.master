@@ -95,9 +95,10 @@
                 <ul class="nav navbar-nav">
                    <li><a href="Users.aspx">User Management</a></li>
                     <li><a href="AdminProductsManagement.aspx">Product Management</a></li>
+                    <li><a href="AdminGalleryManagement.aspx">Gallery Management</a></li>
                     <li><a href="AdminContent.aspx">Event Management</a></li>
                     <li><a href="AdminAttributes.aspx">Size Managment</a></li>
-                    <li><a href="#">DP Car Hire Management</a></li>
+                    <%--<li><a href="#">DP Car Hire Management</a></li>--%>
                 </ul>
             </div>
         </nav>
