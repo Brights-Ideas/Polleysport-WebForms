@@ -27,7 +27,6 @@ public partial class _Default : Page
         DataTable dummy = new DataTable();
         dummy.Columns.Add("ProductID");
         dummy.Columns.Add("ProductName");
-        dummy.Columns.Add("ProductDescription");
         dummy.Columns.Add("ProductImageURL");
         
         dummy.Rows.Add();
@@ -37,7 +36,7 @@ public partial class _Default : Page
 
 
     [WebMethod]
-    public static string GetCustomers(string searchTerm, int pageIndex)
+    public static string GetProducts(string searchTerm, int pageIndex)
     {
         string query = "[GetProducts_Pager]";
         SqlCommand cmd = new SqlCommand(query) {CommandType = CommandType.StoredProcedure};

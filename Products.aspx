@@ -31,9 +31,9 @@
                             alt='<%# Eval("ProductName")%>' width="160" height="200" />
                     </a>
                         <div class="media-body">
-                            <h3 class="media-heading">
+                            <h4 class="media-heading">
                                 <%# Eval("ProductName") %>
-                            </h3>
+                            </h4>
                             <p><%# Eval("ProductDescription") %></p>
                             <hr />
                             <asp:HyperLink ID="HyperLink2" Style="margin: 20px;" runat="server" CssClass="pull-right btn btn-primary"
