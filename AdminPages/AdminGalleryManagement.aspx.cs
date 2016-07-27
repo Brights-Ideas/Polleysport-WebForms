@@ -32,7 +32,7 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
             string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            //string cmd = "SELECT TOP 3 * FROM Products ORDER BY productID DESC";
+            
             string cmd = "SELECT [GalleryID] ,[GalleryTitle],[GalleryContent],[GalleryImageURL],[GallerySection],[enabled] FROM[polleymo_database].[dbo].[Gallery]";
             SqlDataAdapter dAdapter = new SqlDataAdapter(cmd, conn);
             DataSet ds = new DataSet();
@@ -56,7 +56,6 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
     {
         dt.DefaultView.RowFilter = string.Format("GalleryTitle LIKE '{0}'", txtSearch.Text);
         GridView1.DataBind();
-        //BindGrid();
     }
 
     protected void GridView1_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -64,7 +63,7 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
         int index = Convert.ToInt32(e.CommandArgument);
         if (e.CommandName.Equals("detail"))
         {
-            int galleryId = Convert.ToInt32(GridView1.DataKeys[index].Value);//.ToString();
+            int galleryId = Convert.ToInt32(GridView1.DataKeys[index].Value);
             IEnumerable<DataRow> query = from i in dt.AsEnumerable()
                                          where i.Field<Int32>("GalleryID").Equals(galleryId)
                                          select i;
@@ -80,17 +79,13 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
         else if (e.CommandName.Equals("editRecord"))
         {
             GridViewRow gvrow = GridView1.Rows[index];
-            //lblCountryCode.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
             lblGalleryID.Text = HttpUtility.HtmlDecode(gvrow.Cells[2].Text);
             txtgalleryTitle.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text);
-            //txtPopulation.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
             txtXtext.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
             //txtStock.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
             //txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[6].Text);
             hfImageURL.Value = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
-            //ddCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[8].Text);
-            //ddSubCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[9].Text);
-            //rblProductActive.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[10].Text);
+            
             lblResult.Visible = false;
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
@@ -101,8 +96,8 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
         }
         else if (e.CommandName.Equals("deleteRecord"))
         {
-            string code = GridView1.DataKeys[index].Value.ToString();
-            hfCode.Value = code;
+            string galleryId = GridView1.DataKeys[index].Value.ToString();
+            hfGalleryID.Value = galleryId;
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
             sb.Append("$('#deleteModal').modal('show');");
@@ -114,12 +109,9 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 
     protected void btnSave_Click(object sender, EventArgs e)
     {
-        int productId = Convert.ToInt32(lblGalleryID.Text);
-        string productName = txtgalleryTitle.Text;
-        //int population = Convert.ToInt32( 1);
+        int galleryId = Convert.ToInt32(lblGalleryID.Text);
+        string galleryTitle = txtgalleryTitle.Text;
         string description = txtXtext.Text;
-        //int stock = Convert.ToInt32(txtStock.Text);
-        //decimal price = Convert.ToDecimal(txtPrice.Text);
         if (fileUploadImage.HasFile)
         {
             StartUpLoad(fileUploadImage);
@@ -128,7 +120,7 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
         //int categoryId = Convert.ToInt32(ddCatId.SelectedValue);
         //int subCategoryId = Convert.ToInt32(ddSubCatId.SelectedValue);
         bool enabled = Convert.ToBoolean(rblProductActive.SelectedValue);
-        executeUpdate(productName, description, imageUrl, enabled, productId);
+        executeUpdate(galleryTitle, description, imageUrl, enabled, galleryId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
@@ -139,23 +131,22 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 
     }
 
-    private void executeUpdate(string productName, string description, string imageUrl, bool enabled, int productId)
+    private void executeUpdate(string galleryTitle, string description, string imageUrl, bool enabled, int galleryId)
     {
         string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            //string updatecmd = "update Products set Population=@population, Name=@countryname,Continent=@continent where Code=@code";
-            string updatecmd = "UPDATE Products SET ProductName = @Name, ProductDescription = @Description, in_stock = @Stock, ProductPrice = @Price, ProductImageUrl = @ImageURL, categoryID = @CatId, subCategoryID = @SubCatId WHERE ProductID = @ProductID";
+
+            string updatecmd = "UPDATE Gallery SET GalleryTitle = @Name, GalleryContent = @Description, GalleryImageURL = @ImageURL, enabled = @enabled WHERE GalleryID = @GalleryID";
             SqlCommand updateCmd = new SqlCommand(updatecmd, conn);
-            updateCmd.Parameters.AddWithValue("@Name", productName);
+            updateCmd.Parameters.AddWithValue("@Name", galleryTitle);
 	        updateCmd.Parameters.AddWithValue("@Description", description);
-	        //updateCmd.Parameters.AddWithValue("@Shipping money,
 	        updateCmd.Parameters.AddWithValue("@ImageURL", imageUrl);
             updateCmd.Parameters.AddWithValue("@enabled", enabled);
 
-            updateCmd.Parameters.AddWithValue("@ProductID", productId);
+            updateCmd.Parameters.AddWithValue("@GalleryID", galleryId);
 	        
             updateCmd.ExecuteNonQuery();
             conn.Close();
@@ -179,19 +170,17 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 
     protected void btnAddRecord_Click(object sender, EventArgs e)
     {
-        string productName = txtProductName.Text;
+        string galleryName = txtGalleryName.Text;
         string description = txtDescription.Text;
-        decimal price = Convert.ToDecimal(txtProductPrice.Text);
-        int stock = Convert.ToInt32(txtProductStock.Text);
+        
         if(insertUploadPicture.HasFile)
         {
             StartUpLoad(insertUploadPicture);
         }
         //StartUpLoad();
         string imageUrl = insertUploadPicture.FileName;// StartUpLoad(insertUploadPicture);
-        int categoryId = Convert.ToInt32(Category.SelectedValue);
-        
-        executeAdd(productName, description, price, stock, imageUrl, categoryId);
+
+        executeAdd(galleryName, description, imageUrl);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
@@ -203,30 +192,20 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 
     }
 
-    private void executeAdd(string productName, string description, decimal price, int stock, string imageUrl, int categoryId)
+    private void executeAdd(string galleryName, string description, string imageUrl)
     {
         string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            //string updatecmd = "insert into tblCountry (Code,Name,Continent,Region,Population,IndepYear) values (@code,@name,@continent,@region,@population,@indyear)";
 
-            string updatecmd = "INSERT INTO Products (ProductName,ProductDescription,ProductPrice,ProductImageURL,in_stock,categoryID,[enabled]) VALUES (@ProductName, @ProductDescription,@ProductPrice,@ProductImageURL,@in_stock,@CategoryID,1 )";
+            string updatecmd = "INSERT INTO Gallery (GalleryTitle,GalleryContent,GalleryImageURL,[enabled]) VALUES (@GalleryTitle, @GalleryContent,@GalleryImageURL,1 )";
             SqlCommand addCmd = new SqlCommand(updatecmd, conn);
-            //addCmd.Parameters.AddWithValue("@code", code);
-            //addCmd.Parameters.AddWithValue("@name", name);
-            //addCmd.Parameters.AddWithValue("@continent", continent);
-            //addCmd.Parameters.AddWithValue("@region", region);
-            //addCmd.Parameters.AddWithValue("@population", population);
-            //addCmd.Parameters.AddWithValue("@indyear", indyear);
-            addCmd.Parameters.AddWithValue("@ProductName", productName);
-            addCmd.Parameters.AddWithValue("@ProductDescription", description);
-            addCmd.Parameters.AddWithValue("@ProductPrice", price);
-            //addCmd.Parameters.AddWithValue("@ShippingCost money,
-            addCmd.Parameters.AddWithValue("@in_stock", stock);
-            addCmd.Parameters.AddWithValue("@ProductImageURL", imageUrl);
-            addCmd.Parameters.AddWithValue("@CategoryID", categoryId);
+            addCmd.Parameters.AddWithValue("@GalleryTitle", galleryName);
+            addCmd.Parameters.AddWithValue("@GalleryContent", description);
+            addCmd.Parameters.AddWithValue("@GalleryImageURL", imageUrl);
+
             addCmd.ExecuteNonQuery();
             conn.Close();
 
@@ -239,8 +218,8 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 
     protected void btnDelete_Click(object sender, EventArgs e)
     {
-        string code = hfCode.Value;
-        executeDelete(code);
+        int galleryId = int.Parse(hfGalleryID.Value);
+        executeDelete(galleryId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
@@ -252,16 +231,17 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 
     }
 
-    private void executeDelete(string code)
+    private void executeDelete(int galleryId)
     {
         string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
         {
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            string updatecmd = "delete from tblCountry where Code=@code";
+            //string updatecmd = "delete from tblCountry where Code=@code";
+            string updatecmd = "UPDATE Gallery SET [enabled] = 0 WHERE GalleryID=@GalleryID";
             SqlCommand addCmd = new SqlCommand(updatecmd, conn);
-            addCmd.Parameters.AddWithValue("@code", code);
+            addCmd.Parameters.AddWithValue("@GalleryID", galleryId);
             addCmd.ExecuteNonQuery();
             conn.Close();
 
@@ -317,49 +297,6 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
         BindGrid();
     }
     #endregion
-
-    protected void DropDownSize_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        var id = int.Parse(((DropDownList)GridView1.Controls[0].FindControl("DropDownSize")).SelectedValue);
-        // update the price depending on the size selected from the drop down list
-        //txtSizePrice.Text = GetPrice(id);
-    }
-
-    /// <summary>
-    /// Updates the product price according to the size selected
-    /// </summary>
-    /// <param name="sizeId"></param>
-    /// <returns></returns>
-    protected string GetPrice(int sizeId)
-    {
-        string outcomeMessage;
-        try
-        {
-            decimal returnValue;
-            using (var sqlConnection = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
-            {
-                using (var sqlCommand = new SqlCommand("Product_Attributes_Prices", sqlConnection))
-                {
-                    sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlConnection.Open();
-
-                    sqlCommand.Parameters.Clear();
-                    sqlCommand.Parameters.AddWithValue("@Id", sizeId);
-
-                    returnValue = (decimal)sqlCommand.ExecuteScalar();
-
-                    sqlConnection.Close();
-                }
-            }
-            return returnValue.ToString("#0.00");
-        }
-        catch (Exception ex)
-        {
-            outcomeMessage = "<b>Error occured while updating." + ex.StackTrace + " + </b>";
-        }
-
-        return outcomeMessage;
-    }
 
     private void StartUpLoad(FileUpload UploadPicture)
     {

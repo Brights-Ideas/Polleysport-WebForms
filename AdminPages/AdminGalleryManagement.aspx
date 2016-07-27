@@ -90,36 +90,10 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <asp:Label ID="prodStock" CssClass="col-sm-2 control-label" AssociatedControlID="txtStock" runat="server" Text="Stock Level"></asp:Label>
-                                <div class="col-sm-10">
-                                    <asp:TextBox ID="txtStock" CssClass="form-control" runat="server" />
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <asp:Label ID="prodPrice" CssClass="col-sm-2 control-label" AssociatedControlID="txtPrice" runat="server" Text="Price £"></asp:Label>
-                                <div class="col-sm-10">
-                                    <asp:TextBox ID="txtPrice" CssClass="form-control" runat="server" />
-                                </div>
-                            </div>
-                            <div class="form-group">
                                 <img alt="Upload Image" class="col-sm-2" runat="server" src="../Content/Images/uploadphoto.png" />
                                 <div class="col-sm-10">
                                     <asp:FileUpload ID="fileUploadImage" runat="server"></asp:FileUpload>
                                     <asp:HiddenField ID="hfImageURL" runat="server" Value="" />
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <asp:Label ID="prodCategory" CssClass="col-sm-2 control-label" AssociatedControlID="ddCatId" runat="server" Text="Category" />
-                                <div class="col-sm-10">
-                                    <asp:DropDownList ID="ddCatId" CssClass="form-control" runat="server" DataSourceID="remCats" DataTextField="category"
-                                        DataValueField="CategoryID" />
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <asp:Label ID="prodSubCategory" CssClass="col-sm-2 control-label" AssociatedControlID="ddSubCatId" runat="server" Text="Sub Category" />
-                                <div class="col-sm-10">
-                                    <asp:DropDownList ID="ddSubCatId" CssClass="form-control" runat="server" DataSourceID="remSubCats" DataTextField="subCategory"
-                                        DataValueField="SubCategoryID" />
                                 </div>
                             </div>
                             <div class="form-group">
@@ -160,9 +134,9 @@
                         <div class="modal-body">
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="txtProductName">Product Name</label>
+                                    <label class="col-sm-2 control-label" for="txtGalleryName">Gallery Title</label>
                                     <div class="col-sm-10">
-                                        <asp:TextBox ID="txtProductName" CssClass="form-control" runat="server" />
+                                        <asp:TextBox ID="txtGalleryName" CssClass="form-control" runat="server" />
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -175,36 +149,10 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="txtProductStock">Stock</label>
-                                    <div class="col-sm-10">
-                                        <asp:TextBox ID="txtProductStock" CssClass="form-control" runat="server" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="txtProductPrice">Price</label>
-                                    <div class="col-sm-10">
-                                        <asp:TextBox ID="txtProductPrice" CssClass="form-control" runat="server" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
                                     <img alt="Upload Image" class="col-sm-2" runat="server" src="../Content/Images/uploadphoto.png" />
                                     <div class="col-sm-10">
                                         <asp:FileUpload ID="insertUploadPicture" runat="server"></asp:FileUpload>
                                         <asp:HiddenField ID="ImageURL" runat="server" Value="" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="Category">Category</label>
-                                    <div class="col-sm-10">
-                                        <asp:DropDownList ID="Category" CssClass="form-control" runat="server" DataSourceID="remCats" DataTextField="category"
-                                            DataValueField="CategoryID" />
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label" for="SubCategory">Sub Category</label>
-                                    <div class="col-sm-10">
-                                        <asp:DropDownList ID="SubCategory" CssClass="form-control" runat="server" DataSourceID="remSubCats" DataTextField="subCategory"
-                                            DataValueField="SubCategoryID" />
                                     </div>
                                 </div>
                             </div>
@@ -237,7 +185,7 @@
                         <div class="modal-body">
                             Are you sure you want to delete the record?
                            
-                        <asp:HiddenField ID="hfCode" runat="server" />
+                        <asp:HiddenField ID="hfGalleryID" runat="server" />
                         </div>
                         <div class="modal-footer">
                             <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn btn-info" OnClick="btnDelete_Click" />
