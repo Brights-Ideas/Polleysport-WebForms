@@ -7,20 +7,21 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Polleysport-WebForms(1)", "
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.5"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_59240"
-		Debug.AspNetCompiler.PhysicalPath = "..\..\..\GitHub\Polleysport-WebForms\"
+		Debug.AspNetCompiler.PhysicalPath = "..\Polleysport-WebForms\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_59240\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/localhost_59240"
-		Release.AspNetCompiler.PhysicalPath = "..\..\..\GitHub\Polleysport-WebForms\"
+		Release.AspNetCompiler.PhysicalPath = "..\Polleysport-WebForms\"
 		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_59240\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "59240"
+		SlnRelativePath = "..\Polleysport-WebForms\"
 	EndProjectSection
 EndProject
 Global

@@ -33,7 +33,7 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
             
-            string cmd = "SELECT [GalleryID] ,[GalleryTitle],[GalleryContent],[GalleryImageURL],[GallerySection],[enabled] FROM[polleymo_database].[dbo].[Gallery]";
+            string cmd = "SELECT [GalleryID] ,[GalleryTitle],[GalleryContent],[GalleryImageURL],[enabled] FROM[polleymo_database].[dbo].[Gallery]";
             SqlDataAdapter dAdapter = new SqlDataAdapter(cmd, conn);
             DataSet ds = new DataSet();
             dAdapter.Fill(ds);
@@ -85,7 +85,8 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
             //txtStock.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
             //txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[6].Text);
             hfImageURL.Value = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
-            
+            rblProductActive.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[6].Text);
+
             lblResult.Visible = false;
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             sb.Append(@"<script type='text/javascript'>");
@@ -119,7 +120,7 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
         string imageUrl = hfImageURL.Value;
         //int categoryId = Convert.ToInt32(ddCatId.SelectedValue);
         //int subCategoryId = Convert.ToInt32(ddSubCatId.SelectedValue);
-        bool enabled = Convert.ToBoolean(rblProductActive.SelectedValue);
+        int enabled = Convert.ToInt32(rblProductActive.SelectedValue);
         executeUpdate(galleryTitle, description, imageUrl, enabled, galleryId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -131,7 +132,7 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 
     }
 
-    private void executeUpdate(string galleryTitle, string description, string imageUrl, bool enabled, int galleryId)
+    private void executeUpdate(string galleryTitle, string description, string imageUrl, int enabled, int galleryId)
     {
         string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
@@ -301,19 +302,15 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
     private void StartUpLoad(FileUpload UploadPicture)
     {
         //get the file name of the posted image
-        //string imgName = ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).FileName;
         string imgName = UploadPicture.FileName;
 
         //get the size in bytes that
-        //int imgSize = ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile.ContentLength;
         int imgSize = UploadPicture.PostedFile.ContentLength;
 
         //validates the posted file before saving
-        //if (((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile != null && ((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).FileName != "")
         if (UploadPicture.PostedFile != null && imgName != "")
         {
             // 10240 KB means 10MB, You can change the value based on your requirement
-            //if (((FileUpload)GridView1.Controls[0].FindControl("insertUploadPicture")).PostedFile.ContentLength > 20240)
             if (imgSize > 20240)
             {
                 Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('File is too big.')", true);
@@ -322,21 +319,19 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
             else
             {
                 //For live
-                string imagePath = Server.MapPath("~/ProductImages/");
+                string imagePath = Server.MapPath("~/GalleryImages/");
                 imagePath = imagePath + @"\" + imgName;
 
                 //For testing
                 //string imagePath = ConfigurationManager.AppSettings["UploadPath"] + imgName;
 
                 //then save it to the Folder
-                //((FileUpload)GridView1.Controls[0].FindControl("fileUploadImage")).SaveAs(imagePath);
                 UploadPicture.SaveAs(imagePath);
 
                 //ImageResizeUtils.ResizeImage(imagePath, 300, 300);
                 Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('Image saved!')", true);
                 //ProductImages/imgName
-                //((HiddenField)GridView1.Controls[0].FindControl("hfImageURL")).Value = "ProductImages/" + imgName;
-                hfImageURL.Value = "ProductImages/" + imgName;
+                hfImageURL.Value = "GalleryImages/" + imgName;
             }
         }
         //return "ProductImages/" + imgName;
