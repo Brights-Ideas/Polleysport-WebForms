@@ -2,11 +2,11 @@
     CodeFile="AdminGalleryManagement.aspx.cs" Inherits="AdminPages_AdminGalleryManagement" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentBody" runat="Server">
-    <asp:SqlDataSource ID="sdsProducts" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
-        SelectCommand="Products_View" FilterExpression="ProductName LIKE '%{0}%'" SelectCommandType="StoredProcedure"
+    <asp:SqlDataSource ID="sdsGallery" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
+        SelectCommand="Gallery_view_search" FilterExpression="GalleryTitle LIKE '%{0}%'" SelectCommandType="StoredProcedure"
         CancelSelectOnNullParameter="False">
         <FilterParameters>
-            <asp:ControlParameter Name="Product" ControlID="txtSearch" PropertyName="Text" />
+            <asp:ControlParameter Name="Title" ControlID="txtSearch" PropertyName="Text" />
         </FilterParameters>
     </asp:SqlDataSource>
 
@@ -49,7 +49,7 @@
                     <asp:BoundField DataField="GalleryID" HeaderText="Id" />
                     <asp:BoundField DataField="GalleryTitle" HeaderText="Name" />
                     <asp:BoundField DataField="GalleryContent" HeaderText="Description" />
-                    <asp:ImageField HeaderText="Image" DataImageUrlField="GalleryImageUrl" DataImageUrlFormatString="~\{0}" />
+                    <asp:ImageField HeaderText="Image" DataImageUrlField="GalleryImageUrl" ControlStyle-Height="200px" ControlStyle-Width="200px" DataImageUrlFormatString="~\GalleryImages\{0}" />
                     <asp:BoundField DataField="enabled" HeaderText="Active" />
                 </Columns>
             </asp:GridView>
@@ -200,9 +200,5 @@
         </div>
     </div>
     <!--Delete Record Modal Ends here -->
-    <asp:SqlDataSource ID="remCats" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
-        SelectCommand="SELECT [category], [categoryID] FROM [Category]" />
 
-    <asp:SqlDataSource ID="remSubCats" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>"
-        SelectCommand="SELECT [SubCategory], [subcategoryID] FROM [SubCategory]" />
 </asp:Content>

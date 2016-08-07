@@ -42,6 +42,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             //Bind the fetched data to gridview
             GridView1.DataSource = dt;
             GridView1.DataBind();
+            conn.Close();
 
         }
         catch (SqlException ex)
@@ -54,9 +55,21 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     protected void btnSearch_Click(object sender, EventArgs e)
     {
-        dt.DefaultView.RowFilter = string.Format("ProductName LIKE '{0}'", txtSearch.Text);
+        //dt.DefaultView.RowFilter = string.Format("ProductName LIKE '{0}'", txtSearch.Text);
+        //GridView1.DataBind();
+        string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+        SqlConnection con = new SqlConnection(connString);
+        con.Open();
+
+        SqlDataAdapter adapt = new SqlDataAdapter("SELECT * FROM Products WHERE ProductName LIKE '%" + txtSearch.Text + "%'", con);
+        //dt = new DataTable();
+        DataSet ds = new DataSet();
+        adapt.Fill(ds);
+
+        dt = ds.Tables[0];
+        GridView1.DataSource = dt;
         GridView1.DataBind();
-        //BindGrid();
+        con.Close();   
     }
 
     protected void GridView1_RowCommand(object sender, GridViewCommandEventArgs e)

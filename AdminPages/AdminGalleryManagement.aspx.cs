@@ -12,6 +12,7 @@ using System.Data.SqlClient;
 public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 {
     DataTable dt;
+    private string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -29,7 +30,6 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
         try
         {
             //Fetch data from mysql database
-            string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
             
@@ -42,6 +42,7 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
             //Bind the fetched data to gridview
             GridView1.DataSource = dt;
             GridView1.DataBind();
+            conn.Close();
 
         }
         catch (SqlException ex)
@@ -54,8 +55,22 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
 
     protected void btnSearch_Click(object sender, EventArgs e)
     {
-        dt.DefaultView.RowFilter = string.Format("GalleryTitle LIKE '{0}'", txtSearch.Text);
+        SqlConnection con = new SqlConnection(connString);
+        con.Open();
+
+        SqlDataAdapter adapt = new SqlDataAdapter("SELECT * FROM Gallery WHERE GalleryTitle LIKE '%" + txtSearch.Text + "%'", con);
+        //dt = new DataTable();
+        DataSet ds = new DataSet();
+        adapt.Fill(ds);
+        
+        dt = ds.Tables[0];
+        GridView1.DataSource = dt;
         GridView1.DataBind();
+        con.Close();   
+        //dt.DefaultView.RowFilter = string.Format("GalleryTitle LIKE '{0}'", txtSearch.Text);
+        //GridView1.DataBind();
+        //GridView1.DataSource = dt.DefaultView.RowFilter = string.Format("GalleryTitle LIKE '{0}'", txtSearch.Text);
+        //GridView1.DataBind();
     }
 
     protected void GridView1_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -113,11 +128,11 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
         int galleryId = Convert.ToInt32(lblGalleryID.Text);
         string galleryTitle = txtgalleryTitle.Text;
         string description = txtXtext.Text;
+        string imageUrl = string.Empty;
         if (fileUploadImage.HasFile)
         {
-            StartUpLoad(fileUploadImage);
+            imageUrl = StartUpLoad(fileUploadImage);
         }
-        string imageUrl = hfImageURL.Value;
         //int categoryId = Convert.ToInt32(ddCatId.SelectedValue);
         //int subCategoryId = Convert.ToInt32(ddSubCatId.SelectedValue);
         int enabled = Convert.ToInt32(rblProductActive.SelectedValue);
@@ -299,7 +314,7 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
     }
     #endregion
 
-    private void StartUpLoad(FileUpload UploadPicture)
+    private string StartUpLoad(FileUpload UploadPicture)
     {
         //get the file name of the posted image
         string imgName = UploadPicture.FileName;
@@ -331,10 +346,10 @@ public partial class AdminPages_AdminGalleryManagement : System.Web.UI.Page
                 //ImageResizeUtils.ResizeImage(imagePath, 300, 300);
                 Page.ClientScript.RegisterClientScriptBlock(typeof(Page), "Alert", "alert('Image saved!')", true);
                 //ProductImages/imgName
-                hfImageURL.Value = "GalleryImages/" + imgName;
+                //hfImageURL.Value = "GalleryImages/" + imgName;
             }
         }
-        //return "ProductImages/" + imgName;
+        return "GalleryImages/" + imgName;
     }
 
 }
