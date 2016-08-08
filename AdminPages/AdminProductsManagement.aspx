@@ -90,7 +90,7 @@
                                     <asp:TextBox ID="txtXtext" Rows="8" TextMode="MultiLine" CssClass="form-control" runat="server" />
 
                                     <asp:RegularExpressionValidator ID="regexDescriptionValid" runat="server" ControlToValidate="txtXtext"
-                                        ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="/?\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>
+                                        ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -175,7 +175,7 @@
                                         <asp:TextBox ID="txtDescription" Rows="8" TextMode="MultiLine" CssClass="form-control" runat="server" />
 
                                         <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ControlToValidate="txtXtext"
-                                            ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="/?\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>
+                                            ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>
                                     </div>
                                 </div>
                                 <div class="form-group">
