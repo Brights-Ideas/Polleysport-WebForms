@@ -3,7 +3,7 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headContent" runat="Server">
     <script src="lightbox/js/jquery-1.10.2.min.js"></script>
-    <script src="lightbox/js/lightbox-2.6.min.js"></script>
+    <script src="lightbox/js/lightbox.js"></script>
     <link href="lightbox/css/lightbox.css" rel="stylesheet" />
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="Server">
@@ -34,8 +34,8 @@
                     </GroupTemplate>
                     <ItemTemplate>
                         <div class="col-lg-3">
-                            <a href="GalleryImages/<%#Eval("GalleryImageURL") %>" data-lightbox="image-1">
-                                <img src="GalleryImages/<%#Eval("GalleryImageURL") %>" class="img-thumbnail" width="200" height="150" />
+                            <a href="GalleryImages/<%#Eval("GalleryImageURL") %>" data-lightbox="image-1" data-title="<%# Eval("GalleryTitle")%>">
+                                <img src="GalleryImages/<%#Eval("GalleryImageURL") %>" alt="" class="img-thumbnail" width="200" height="150" />
                             </a>
                             <p><%# !string.IsNullOrEmpty(Eval("GalleryTitle").ToString()) ? Eval("GalleryTitle").ToString() : "Description" %></p>
                         </div>
