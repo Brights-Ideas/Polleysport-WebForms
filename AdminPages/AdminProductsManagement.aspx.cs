@@ -32,8 +32,8 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
-            //string cmd = "SELECT TOP 3 * FROM Products ORDER BY productID DESC";
-            string cmd = "SELECT Products.ProductID, Products.ProductName, Products.ProductDescription, Products.in_stock, Products.ProductPrice, Products.ProductImageUrl, Products.CategoryID, SubCategory.SubCategoryID, Products.enabled FROM Products LEFT JOIN SubCategory ON Products.CategoryID = SubCategory.SubCategoryId ORDER BY Products.productID DESC";
+            //string cmd = "SELECT Products.ProductID, Products.ProductName, Products.ProductDescription, Products.in_stock, Products.ProductPrice, Products.ProductImageUrl, Products.CategoryID, SubCategory.SubCategoryID, Products.enabled FROM Products LEFT JOIN SubCategory ON Products.CategoryID = SubCategory.CategoryId WHERE enabled = 1 ORDER BY Products.productID DESC";
+            string cmd = "SELECT Products.ProductID, Products.ProductName, Products.ProductDescription, Products.in_stock, Products.ProductPrice, Products.ProductImageUrl, S.SubCategoryID, C.CategoryID, Products.enabled FROM Products LEFT JOIN SubCategory S ON Products.SubCategoryId = S.SubCategoryID LEFT JOIN Category C ON S.CategoryID = C.CategoryId WHERE enabled = 1 ORDER BY Products.productID DESC";
             SqlDataAdapter dAdapter = new SqlDataAdapter(cmd, conn);
             DataSet ds = new DataSet();
             dAdapter.Fill(ds);
