@@ -130,8 +130,8 @@
                                 <asp:Label ID="prodEnabled" CssClass="col-sm-2 control-label" AssociatedControlID="rblProductActive" runat="server" Text="Active" />
                                 <div class="col-sm-10">
                                     <asp:RadioButtonList ID="rblProductActive" runat="server">
-                                        <asp:ListItem Text="Enabled" Value="1" />
-                                        <asp:ListItem Text="Disabled" Value="0" />
+                                        <asp:ListItem Text="Enabled" Value=1 />
+                                        <asp:ListItem Text="Disabled" Value=0 />
                                     </asp:RadioButtonList>
                                 </div>
                             </div>

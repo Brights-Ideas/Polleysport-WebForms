@@ -140,7 +140,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         string imageUrl = hfImageURL.Value;
         int categoryId = Convert.ToInt32(ddCatId.SelectedValue);
         int subCategoryId = Convert.ToInt32(ddSubCatId.SelectedValue);
-        bool enabled = Convert.ToBoolean(rblProductActive.SelectedValue);
+        int enabled = Convert.ToInt32(rblProductActive.SelectedValue);
         executeUpdate(productName, description, stock, price, imageUrl, categoryId, subCategoryId, enabled, productId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -152,7 +152,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
 
     }
 
-    private void executeUpdate(string productName, string description, int stock, decimal price, string imageUrl, int categoryId, int subCategoryId, bool enabled, int productId)
+    private void executeUpdate(string productName, string description, int stock, decimal price, string imageUrl, int categoryId, int subCategoryId, int enabled, int productId)
     {
         string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
