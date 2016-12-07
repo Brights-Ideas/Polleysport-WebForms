@@ -85,12 +85,12 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <asp:Label ID="prodDesc" CssClass="col-sm-2 control-label" AssociatedControlID="txtXtext" runat="server" Text="Description" />
+                                <asp:Label ID="prodDesc" CssClass="col-sm-2 control-label" AssociatedControlID="txtXtextedit" runat="server" Text="Description" />
                                 <div class="col-sm-10">
-                                    <asp:TextBox ID="txtXtext" Rows="8" TextMode="MultiLine" CssClass="form-control" runat="server" />
+                                    <asp:TextBox ID="txtXtextedit" Rows="8" TextMode="MultiLine" CssClass="form-control" runat="server" />
 
-                                    <asp:RegularExpressionValidator ID="regexDescriptionValid" runat="server" ControlToValidate="txtXtext"
-                                        ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>
+                                    <%--<asp:RegularExpressionValidator ID="regexDescriptionValid" runat="server" ControlToValidate="txtXtextedit"
+                                        ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>--%>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -174,8 +174,8 @@
                                     <div class="col-sm-10">
                                         <asp:TextBox ID="txtDescription" Rows="8" TextMode="MultiLine" CssClass="form-control" runat="server" />
 
-                                        <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ControlToValidate="txtXtext"
-                                            ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>
+                                        <%--<asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" ControlToValidate="txtXtext"
+                                            ErrorMessage="HTML charactors found in description remove these before saving" ValidationExpression="\w+\s+[^>]*" Display="Dynamic" ForeColor="Red"></asp:RegularExpressionValidator>--%>
                                     </div>
                                 </div>
                                 <div class="form-group">

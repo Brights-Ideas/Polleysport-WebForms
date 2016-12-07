@@ -97,10 +97,17 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             lblProductID.Text = HttpUtility.HtmlDecode(gvrow.Cells[2].Text).ToString();
             txtprodTitle.Text = HttpUtility.HtmlDecode(gvrow.Cells[3].Text).ToString();
             //txtPopulation.Text = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
-            txtXtext.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
+            txtXtextedit.Text = HttpUtility.HtmlDecode(gvrow.Cells[4].Text);
             txtStock.Text = HttpUtility.HtmlDecode(gvrow.Cells[5].Text);
             txtPrice.Text = HttpUtility.HtmlDecode(gvrow.Cells[6].Text);
-            hfImageURL.Value = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
+            Image img = gvrow.Cells[7].Controls[0] as Image;
+            //string text = "\t, again and again.";       // Trim this string.
+            char[] arr = new char[] { '~', '\\' }; // Trim these characters.
+
+            //text = text.TrimStart(arr);
+            hfImageURL.Value = img.ImageUrl.TrimStart(arr);
+            //img.ImageUrl = "img" + DataBinder.Eval(e.Row.DataItem, "id") + ".jpg";
+            //hfImageURL.Value = HttpUtility.HtmlDecode(gvrow.Cells[7].Text);
             ddCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[8].Text);
             ddSubCatId.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[9].Text);
             rblProductActive.SelectedValue = HttpUtility.HtmlDecode(gvrow.Cells[10].Text);
@@ -130,7 +137,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         int productId = Convert.ToInt32(lblProductID.Text);
         string productName = txtprodTitle.Text;
         //int population = Convert.ToInt32( 1);
-        string description = txtXtext.Text;
+        string description = txtXtextedit.Text;
         int stock = Convert.ToInt32(txtStock.Text);
         decimal price = Convert.ToDecimal(txtPrice.Text);
         if (fileUploadImage.HasFile)
@@ -205,10 +212,10 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             StartUpLoad(insertUploadPicture);
         }
         //StartUpLoad();
-        string imageUrl = insertUploadPicture.FileName;// StartUpLoad(insertUploadPicture);
+        string imageUrl = insertUploadPicture.FileName;
         int categoryId = Convert.ToInt32(Category.SelectedValue);
-        
-        executeAdd(productName, description, price, stock, imageUrl, categoryId);
+        int subCategoryId = Convert.ToInt32(ddSubCatId.SelectedValue);
+        executeAdd(productName, description, price, stock, imageUrl, categoryId, subCategoryId);
         BindGrid();
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append(@"<script type='text/javascript'>");
@@ -217,10 +224,9 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
         sb.Append(@"</script>");
         ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "AddHideModalScript", sb.ToString(), false);
 
-
     }
 
-    private void executeAdd(string productName, string description, decimal price, int stock, string imageUrl, int categoryId)
+    private void executeAdd(string productName, string description, decimal price, int stock, string imageUrl, int categoryId, int subCategoryId)
     {
         string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
         try
@@ -229,14 +235,9 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             conn.Open();
             //string updatecmd = "insert into tblCountry (Code,Name,Continent,Region,Population,IndepYear) values (@code,@name,@continent,@region,@population,@indyear)";
 
-            string updatecmd = "INSERT INTO Products (ProductName,ProductDescription,ProductPrice,ProductImageURL,in_stock,categoryID,[enabled]) VALUES (@ProductName, @ProductDescription,@ProductPrice,@ProductImageURL,@in_stock,@CategoryID,1 )";
+            string updatecmd = "INSERT INTO Products (ProductName,ProductDescription,ProductPrice,ProductImageURL,in_stock,categoryID,[enabled],subCategoryID) VALUES (@ProductName, @ProductDescription,@ProductPrice,@ProductImageURL,@in_stock,@CategoryID,1,@SubCategoryID )";
             SqlCommand addCmd = new SqlCommand(updatecmd, conn);
             //addCmd.Parameters.AddWithValue("@code", code);
-            //addCmd.Parameters.AddWithValue("@name", name);
-            //addCmd.Parameters.AddWithValue("@continent", continent);
-            //addCmd.Parameters.AddWithValue("@region", region);
-            //addCmd.Parameters.AddWithValue("@population", population);
-            //addCmd.Parameters.AddWithValue("@indyear", indyear);
             addCmd.Parameters.AddWithValue("@ProductName", productName);
             addCmd.Parameters.AddWithValue("@ProductDescription", description);
             addCmd.Parameters.AddWithValue("@ProductPrice", price);
@@ -244,6 +245,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             addCmd.Parameters.AddWithValue("@in_stock", stock);
             addCmd.Parameters.AddWithValue("@ProductImageURL", imageUrl);
             addCmd.Parameters.AddWithValue("@CategoryID", categoryId);
+            addCmd.Parameters.AddWithValue("@SubCategoryID", subCategoryId);
             addCmd.ExecuteNonQuery();
             conn.Close();
 

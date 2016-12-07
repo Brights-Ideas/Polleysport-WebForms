@@ -13,10 +13,10 @@ using System.Web.Script.Services;
 public partial class Payment : System.Web.UI.Page
 {
     #region -- Global Properties --
-        private static int _installationId;
-   
-        private decimal _FeeTotal;
-    
+    private static int _installationId;
+
+    private decimal _FeeTotal;
+
     #endregion --
 
     protected void Page_Load(object sender, EventArgs e)
@@ -31,10 +31,11 @@ public partial class Payment : System.Web.UI.Page
     {
         var Items = ShoppingCart.GetInstance().Items; //.Instance.Items;
         var cartItemDesc = string.Empty;
-			foreach (CartItem item in Items) {
-                cartItemDesc += item.Name + " x " + item.Quantity + " " +  (string.IsNullOrEmpty(item.Size) ? string.Empty : "size: " + item.Size) + Environment.NewLine + ", ";
-            }
-					return cartItemDesc;
+        foreach (CartItem item in Items)
+        {
+            cartItemDesc += item.Name + " x " + item.Quantity + " " + (string.IsNullOrEmpty(item.Size) ? string.Empty : "size: " + item.Size) + Environment.NewLine + ", ";
+        }
+        return cartItemDesc;
     }
 
     protected void paymentType_SelectedIndexChanged(object sender, EventArgs e)
@@ -49,7 +50,7 @@ public partial class Payment : System.Web.UI.Page
             var fee = 0.02;
             //Credit card add a 2% fee onto their order
             _FeeTotal = CartTotal + (CartTotal * (decimal)fee);
-            
+
             //Credit cards on installation: 1043836
             _installationId = 1043836;
         }
@@ -65,19 +66,19 @@ public partial class Payment : System.Web.UI.Page
     //[ScriptMethod(ResponseFormat = ResponseFormat.Json)]
     //public static string CardHandlingFee(string payment)
     //{
-        //var CardHandlingTotal = ShoppingCart.GetInstance().ReturnItemTotal();
-        //var bob = 0.00;
-        //if (paymentType == "JCB")
-        //{
-            //bob = 0.02;
-            //CardHandlingTotal += (decimal)bob;
-            //debit cards on installation: 295654
-            //Credit cards on installation: 1043836
-            //installationID = 1043836;
-        //}
-        //Convert.ToInt32(WebConfigurationManager.AppSettings["InstallationID"]);
-        //0.00;
-        //return payment;
+    //var CardHandlingTotal = ShoppingCart.GetInstance().ReturnItemTotal();
+    //var bob = 0.00;
+    //if (paymentType == "JCB")
+    //{
+    //bob = 0.02;
+    //CardHandlingTotal += (decimal)bob;
+    //debit cards on installation: 295654
+    //Credit cards on installation: 1043836
+    //installationID = 1043836;
+    //}
+    //Convert.ToInt32(WebConfigurationManager.AppSettings["InstallationID"]);
+    //0.00;
+    //return payment;
     //}
 
     protected decimal ReturnCartTotal()
@@ -94,9 +95,9 @@ public partial class Payment : System.Web.UI.Page
         int installationID = _installationId; //Convert.ToInt32(WebConfigurationManager.AppSettings["InstallationID"]);
         string MD5secretKey = WebConfigurationManager.AppSettings["MD5secretKey"];
         string WebsiteURL = WebConfigurationManager.AppSettings["WebsiteURL"];
-        
+
         HostedTransactionRequest PRequest = new HostedTransactionRequest();
-        PRequest.instId = installationID;
+        PRequest.instId = _installationId == 0 ? Convert.ToInt32(WebConfigurationManager.AppSettings["InstallationID"]) : _installationId;
         //amount - A decimal number giving the cost of the purchase in terms of the major currency unit e.g. 12.56
         PRequest.amount = (double)ReturnCartTotal();  //450.00;
         //cartId - If your system has created a unique order/cart ID, enter it here.
