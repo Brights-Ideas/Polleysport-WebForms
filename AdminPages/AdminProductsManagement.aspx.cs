@@ -33,7 +33,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
             //string cmd = "SELECT Products.ProductID, Products.ProductName, Products.ProductDescription, Products.in_stock, Products.ProductPrice, Products.ProductImageUrl, Products.CategoryID, SubCategory.SubCategoryID, Products.enabled FROM Products LEFT JOIN SubCategory ON Products.CategoryID = SubCategory.CategoryId WHERE enabled = 1 ORDER BY Products.productID DESC";
-            string cmd = "SELECT Products.ProductID, Products.ProductName, Products.ProductDescription, Products.in_stock, Products.ProductPrice, Products.ProductImageUrl, S.SubCategoryID, C.CategoryID, Products.enabled FROM Products LEFT JOIN SubCategory S ON Products.SubCategoryId = S.SubCategoryID LEFT JOIN Category C ON S.CategoryID = C.CategoryId WHERE enabled = 1 ORDER BY Products.productID DESC";
+            string cmd = "SELECT Products.ProductID, Products.ProductName, Products.ProductDescription, Products.in_stock, Products.ProductPrice, Products.ProductImageUrl, S.SubCategoryID, C.CategoryID, Products.enabled FROM Products LEFT JOIN SubCategory S ON Products.SubCategoryId = S.SubCategoryID LEFT JOIN Category C ON S.CategoryID = C.CategoryId ORDER BY Products.productID DESC";
             SqlDataAdapter dAdapter = new SqlDataAdapter(cmd, conn);
             DataSet ds = new DataSet();
             dAdapter.Fill(ds);
@@ -167,7 +167,7 @@ public partial class AdminPages_AdminProductsManagement : System.Web.UI.Page
             SqlConnection conn = new SqlConnection(connString);
             conn.Open();
             //string updatecmd = "update Products set Population=@population, Name=@countryname,Continent=@continent where Code=@code";
-            string updatecmd = "UPDATE Products SET ProductName = @Name, ProductDescription = @Description, in_stock = @Stock, ProductPrice = @Price, ProductImageUrl = @ImageURL, categoryID = @CatId, subCategoryID = @SubCatId WHERE ProductID = @ProductID";
+            string updatecmd = "UPDATE Products SET ProductName = @Name, ProductDescription = @Description, in_stock = @Stock, ProductPrice = @Price, ProductImageUrl = @ImageURL, categoryID = @CatId, subCategoryID = @SubCatId, enabled = @enabled WHERE ProductID = @ProductID";
             SqlCommand updateCmd = new SqlCommand(updatecmd, conn);
             updateCmd.Parameters.AddWithValue("@Name", productName);
 	        updateCmd.Parameters.AddWithValue("@Description", description);
